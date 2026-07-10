@@ -1,9 +1,9 @@
 import { useEffect } from 'react';
-import { X, Minus, Plus } from 'lucide-react';
-import { useCartStore } from '@/stores/cartStore';
+import { X, Minus, Plus, ShoppingBag } from 'lucide-react';
+import { useShopifyCartStore } from '@/stores/shopifyCartStore';
 
 export default function CartDrawer() {
-  const { items, isOpen, setOpen, removeItem, updateQuantity, subtotal } = useCartStore();
+  const { items, isOpen, setOpen, removeItem, updateQuantity, subtotal, checkoutUrl, isLoading } = useShopifyCartStore();
 
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -47,6 +47,7 @@ export default function CartDrawer() {
         {/* Content */}
         {items.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-[60%] px-6">
+            <ShoppingBag size={48} className="text-[var(--nc-grey)] mb-4" />
             <p className="text-[var(--nc-grey)] mb-4">Your bag is empty</p>
             <button onClick={() => setOpen(false)} className="btn-primary text-xs py-3 px-6">
               START SHOPPING
@@ -79,14 +80,16 @@ export default function CartDrawer() {
                     <div className="flex items-center gap-3 mt-3">
                       <button
                         onClick={() => updateQuantity(item.product.id, item.quantity - 1)}
-                        className="w-7 h-7 border border-[var(--nc-border)] flex items-center justify-center hover:border-[var(--nc-purple)] transition-colors"
+                        disabled={isLoading}
+                        className="w-7 h-7 border border-[var(--nc-border)] flex items-center justify-center hover:border-[var(--nc-purple)] transition-colors disabled:opacity-50"
                       >
                         <Minus size={12} />
                       </button>
                       <span className="text-sm w-6 text-center">{item.quantity}</span>
                       <button
                         onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
-                        className="w-7 h-7 border border-[var(--nc-border)] flex items-center justify-center hover:border-[var(--nc-purple)] transition-colors"
+                        disabled={isLoading}
+                        className="w-7 h-7 border border-[var(--nc-border)] flex items-center justify-center hover:border-[var(--nc-purple)] transition-colors disabled:opacity-50"
                       >
                         <Plus size={12} />
                       </button>
@@ -97,7 +100,8 @@ export default function CartDrawer() {
                   <div className="flex flex-col items-end justify-between">
                     <button
                       onClick={() => removeItem(item.product.id)}
-                      className="text-[var(--nc-grey)] hover:text-[var(--nc-red)] transition-colors"
+                      disabled={isLoading}
+                      className="text-[var(--nc-grey)] hover:text-[var(--nc-red)] transition-colors disabled:opacity-50"
                     >
                       <X size={14} />
                     </button>
@@ -113,7 +117,18 @@ export default function CartDrawer() {
                 <span className="text-sm">Subtotal</span>
                 <span className="text-sm font-medium">${subtotal()}</span>
               </div>
-              <button className="btn-primary w-full text-xs py-4">CHECKOUT</button>
+              {checkoutUrl ? (
+                <a
+                  href={checkoutUrl}
+                  className="btn-primary w-full text-xs py-4 flex items-center justify-center"
+                >
+                  CHECKOUT
+                </a>
+              ) : (
+                <button className="btn-primary w-full text-xs py-4" disabled>
+                  CHECKOUT
+                </button>
+              )}
               <button
                 onClick={() => setOpen(false)}
                 className="w-full mt-3 text-xs uppercase tracking-[0.05em] text-[var(--nc-grey)] hover:text-[var(--nc-purple)] transition-colors"

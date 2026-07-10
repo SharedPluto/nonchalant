@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { X, SlidersHorizontal, ChevronDown } from 'lucide-react';
-import { products, brands, aesthetics, categories } from '@/data/products';
+import { products as staticProducts, brands, aesthetics, categories } from '@/data/products';
+import { useShopifyProducts } from '@/hooks/useShopifyProduct';
 import ProductCard from '@/components/ProductCard';
 import MetaTags from '@/components/seo/MetaTags';
 
@@ -15,6 +16,12 @@ const sortOptions = [
 export default function ShopPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+
+  // Fetch from Shopify
+  const { products: shopifyProducts, loading: shopifyLoading } = useShopifyProducts(50);
+  
+  // Use Shopify products if available, else static
+  const products = shopifyProducts.length > 0 ? shopifyProducts : staticProducts;
 
   // Get filter values from URL
   const aestheticFilter = searchParams.get('aesthetic') || '';
@@ -366,7 +373,11 @@ export default function ShopPage() {
               </div>
 
               {/* Product Grid */}
-              {filteredProducts.length === 0 ? (
+              {shopifyLoading && products.length === 0 ? (
+                <div className="flex items-center justify-center py-24">
+                  <div className="animate-pulse text-[var(--nc-grey)]">Loading products...</div>
+                </div>
+              ) : filteredProducts.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-24">
                   <p className="text-[var(--nc-grey)] mb-4">No products match your filters.</p>
                   <button onClick={clearAllFilters} className="btn-primary text-xs py-3 px-6">

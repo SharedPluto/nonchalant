@@ -2,12 +2,12 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ShoppingBag, Moon, Sun, Menu, X } from 'lucide-react';
 import { useThemeStore } from '@/stores/themeStore';
-import { useCartStore } from '@/stores/cartStore';
+import { useShopifyCartStore } from '@/stores/shopifyCartStore';
 import { useScrollDirection } from '@/hooks/useScrollDirection';
 
 export default function Header() {
   const { mode, toggle } = useThemeStore();
-  const { itemCount, toggleOpen } = useCartStore();
+  const { itemCount, toggleOpen } = useShopifyCartStore();
   const { scrollDirection, scrollY } = useScrollDirection();
   const [mobileOpen, setMobileOpen] = useState(false);
   const location = useLocation();

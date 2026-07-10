@@ -1,21 +1,64 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
-import { products, getRelatedProducts } from '@/data/products';
-import { useCartStore } from '@/stores/cartStore';
-import { isShopifyConfigured } from '@/lib/shopify/client';
-import { createCart } from '@/lib/shopify/queries';
+import { useShopifyCartStore } from '@/stores/shopifyCartStore';
+import { getVariantIdForProductSize } from '@/hooks/useShopifyProduct';
+import { products as staticProducts, getRelatedProducts } from '@/data/products';
 import ProductCard from '@/components/ProductCard';
 import MetaTags from '@/components/seo/MetaTags';
+import { getShopifyClient } from '@/lib/shopify/client';
+import { mapShopifyProductToProduct } from '@/lib/shopify/mapper';
+import type { Product } from '@/types';
+
+const client = getShopifyClient();
+
+const PRODUCT_QUERY = `
+  query GetProduct($handle: String!) {
+    product(handle: $handle) {
+      id
+      title
+      handle
+      description
+      descriptionHtml
+      vendor
+      productType
+      tags
+      priceRange {
+        minVariantPrice { amount currencyCode }
+      }
+      compareAtPriceRange {
+        minVariantPrice { amount }
+      }
+      variants(first: 20) {
+        edges {
+          node {
+            id
+            title
+            price { amount }
+            compareAtPrice { amount }
+            availableForSale
+            quantityAvailable
+            selectedOptions { name value }
+          }
+        }
+      }
+      featuredImage { url altText }
+      images(first: 5) {
+        edges { node { url altText } }
+      }
+    }
+  }
+`;
 
 export default function ProductDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const addItem = useCartStore(s => s.addItem);
+  const { addItem, lastAdded } = useShopifyCartStore();
 
-  const product = products.find(p => p.id === id);
-  const relatedProducts = product ? getRelatedProducts(product) : [];
-
+  const [product, setProduct] = useState<Product | null>(null);
+  const [variantId, setVariantId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  
   const [selectedSize, setSelectedSize] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [mainImage, setMainImage] = useState(0);
@@ -24,10 +67,10 @@ export default function ProductDetailPage() {
   const [added, setAdded] = useState(false);
   const [sizeError, setSizeError] = useState(false);
   const [accordionOpen, setAccordionOpen] = useState<string | null>(null);
-  const [shopifyCheckoutUrl, setShopifyCheckoutUrl] = useState<string | null>(null);
 
   const sizeRef = useRef<HTMLDivElement>(null);
 
+  // Fetch from Shopify
   useEffect(() => {
     window.scrollTo(0, 0);
     setSelectedSize('');
@@ -35,8 +78,127 @@ export default function ProductDetailPage() {
     setMainImage(0);
     setAdded(false);
     setSizeError(false);
-    setShopifyCheckoutUrl(null);
+    setLoading(true);
+
+    async function fetchProduct() {
+      if (!id) return;
+
+      // Try to find by handle first (if id looks like a handle)
+      // Also try static product handle mapping
+      const staticProd = staticProducts.find(p => p.id === id);
+      const handle = staticProd?.name.toLowerCase()
+        .replace(/'/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '') || id;
+
+      try {
+        const result = await client.request(PRODUCT_QUERY, { variables: { handle } });
+        const shopifyProduct = result.data?.product;
+
+        if (shopifyProduct) {
+          const mapped = mapShopifyProductToProduct(shopifyProduct);
+          setProduct(mapped);
+          // Set default variant
+          const firstVariant = shopifyProduct.variants.edges[0]?.node;
+          if (firstVariant) {
+            setVariantId(firstVariant.id);
+          }
+        } else if (staticProd) {
+          // Fallback to static
+          setProduct(staticProd);
+        }
+      } catch {
+        // Fallback to static data
+        if (staticProd) {
+          setProduct(staticProd);
+        }
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchProduct();
   }, [id]);
+
+  // Get related products from static data
+  const relatedProducts = product ? getRelatedProducts(product) : [];
+
+  const handleAddToCart = async () => {
+    if (!product || !selectedSize) {
+      setSizeError(true);
+      sizeRef.current?.classList.add('animate-shake');
+      setTimeout(() => sizeRef.current?.classList.remove('animate-shake'), 300);
+      return;
+    }
+
+    if (!variantId) {
+      // Try to get variant ID for selected size
+      const staticProd = staticProducts.find(p => p.id === product.id);
+      const handle = staticProd?.name.toLowerCase()
+        .replace(/'/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '') || product.id;
+      
+      const vid = await getVariantIdForProductSize(handle, selectedSize);
+      if (vid) {
+        setVariantId(vid);
+        doAddToCart(vid);
+      } else {
+        setSizeError(true);
+      }
+      return;
+    }
+
+    doAddToCart(variantId);
+  };
+
+  const doAddToCart = async (vid: string) => {
+    if (!product || !selectedSize) return;
+    setAdding(true);
+    await addItem(product, selectedSize, vid);
+    setAdding(false);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 1500);
+  };
+
+  const handleSizeSelect = useCallback(async (size: string) => {
+    setSelectedSize(size);
+    setSizeError(false);
+
+    // Get variant ID for this size
+    if (product) {
+      const staticProd = staticProducts.find(p => p.id === product.id);
+      const handle = staticProd?.name.toLowerCase()
+        .replace(/'/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '') || product.id;
+      
+      const vid = await getVariantIdForProductSize(handle, size);
+      if (vid) setVariantId(vid);
+    }
+  }, [product]);
+
+  const nextImage = () => product && setMainImage((prev) => (prev + 1) % product.images.length);
+  const prevImage = () => product && setMainImage((prev) => (prev - 1 + product.images.length) % product.images.length);
+
+  // Sync added state from store
+  useEffect(() => {
+    if (lastAdded && lastAdded === product?.id) {
+      setAdded(true);
+      setTimeout(() => setAdded(false), 1500);
+    }
+  }, [lastAdded, product?.id]);
+
+  if (loading) {
+    return (
+      <main className="min-h-screen bg-[var(--nc-bg)] pt-[100px] flex items-center justify-center">
+        <div className="animate-pulse text-[var(--nc-grey)]">Loading...</div>
+      </main>
+    );
+  }
 
   if (!product) {
     return (
@@ -50,52 +212,8 @@ export default function ProductDetailPage() {
     );
   }
 
-  const handleAddToCart = async () => {
-    if (!selectedSize) {
-      setSizeError(true);
-      sizeRef.current?.classList.add('animate-shake');
-      setTimeout(() => sizeRef.current?.classList.remove('animate-shake'), 300);
-      return;
-    }
-
-    setAdding(true);
-
-    // Check if Shopify is configured
-    if (isShopifyConfigured()) {
-      // Use Shopify cart
-      try {
-        // For Shopify, we'd need the variant ID mapped to the size
-        // This is a simplified flow - in production you'd map sizes to Shopify variant IDs
-        const cart = await createCart([]);
-        if (cart?.checkoutUrl) {
-          setShopifyCheckoutUrl(cart.checkoutUrl);
-        }
-      } catch {
-        // Fallback to local cart
-        addItemToLocalCart();
-      }
-    } else {
-      // Use local cart (static data mode)
-      addItemToLocalCart();
-    }
-  };
-
-  const addItemToLocalCart = () => {
-    setTimeout(() => {
-      if (product) {
-        addItem(product, selectedSize);
-      }
-      setAdding(false);
-      setAdded(true);
-      setTimeout(() => setAdded(false), 1500);
-    }, 400);
-  };
-
-  const nextImage = () => setMainImage((prev) => (prev + 1) % product.images.length);
-  const prevImage = () => setMainImage((prev) => (prev - 1 + product.images.length) % product.images.length);
-
   const productUrl = `https://nonchalant.co/#/product/${product.id}`;
-  const productImage = `${window.location.origin}${product.images[0]}`;
+  const productImage = product.images[0] || '';
 
   return (
     <>
@@ -131,7 +249,6 @@ export default function ProductDetailPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
             {/* Image Gallery */}
             <div>
-              {/* Main Image */}
               <div
                 className="relative aspect-[4/5] bg-[var(--nc-offwhite)] overflow-hidden cursor-pointer"
                 onClick={() => setLightboxOpen(true)}
@@ -143,7 +260,6 @@ export default function ProductDetailPage() {
                 />
               </div>
 
-              {/* Thumbnails */}
               {product.images.length > 1 && (
                 <div className="flex gap-2 mt-4 overflow-x-auto hide-scrollbar">
                   {product.images.map((img, idx) => (
@@ -163,7 +279,6 @@ export default function ProductDetailPage() {
 
             {/* Product Info */}
             <div className="md:pt-4">
-              {/* Brand */}
               <button
                 onClick={() => navigate(`/shop?brand=${product.brandSlug}`)}
                 className="text-eyebrow hover:underline"
@@ -171,12 +286,10 @@ export default function ProductDetailPage() {
                 {product.brand}
               </button>
 
-              {/* Name */}
               <h1 className="font-display text-2xl md:text-3xl uppercase tracking-[0.02em] mt-2">
                 {product.name}
               </h1>
 
-              {/* Price */}
               <div className="flex items-center gap-3 mt-4">
                 <span className="text-xl md:text-2xl font-medium">
                   ${product.price}
@@ -193,7 +306,6 @@ export default function ProductDetailPage() {
                 )}
               </div>
 
-              {/* Aesthetic Tags */}
               <div className="flex flex-wrap gap-2 mt-4">
                 <button
                   onClick={() => navigate(`/shop?aesthetic=${product.aestheticSlug}`)}
@@ -213,12 +325,10 @@ export default function ProductDetailPage() {
                 )}
               </div>
 
-              {/* Short Description */}
               <p className="text-sm text-[var(--nc-text)]/70 mt-4 leading-relaxed">
                 {product.description.split('.')[0]}.
               </p>
 
-              {/* Divider */}
               <div className="h-px bg-[var(--nc-border)] my-6" />
 
               {/* Size Selector */}
@@ -231,17 +341,11 @@ export default function ProductDetailPage() {
                     Size Guide
                   </span>
                 </div>
-                <div
-                  ref={sizeRef}
-                  className="flex flex-wrap gap-2"
-                >
+                <div ref={sizeRef} className="flex flex-wrap gap-2">
                   {product.sizes.map(size => (
                     <button
                       key={size}
-                      onClick={() => {
-                        setSelectedSize(size);
-                        setSizeError(false);
-                      }}
+                      onClick={() => handleSizeSelect(size)}
                       className={`w-12 h-10 border text-sm transition-colors ${
                         selectedSize === size
                           ? 'bg-[var(--nc-purple)] border-[var(--nc-purple)] text-white'
@@ -283,33 +387,24 @@ export default function ProductDetailPage() {
                 </div>
               </div>
 
-              {/* Add to Cart / Checkout */}
-              {shopifyCheckoutUrl ? (
-                <a
-                  href={shopifyCheckoutUrl}
-                  className="block w-full mt-8 py-4 text-center text-xs uppercase tracking-[0.08em] font-medium bg-[var(--nc-purple)] text-white hover:bg-[var(--nc-purple-dark)] transition-colors"
-                >
-                  PROCEED TO CHECKOUT →
-                </a>
-              ) : (
-                <button
-                  onClick={handleAddToCart}
-                  disabled={adding}
-                  className={`w-full mt-8 py-4 text-xs uppercase tracking-[0.08em] font-medium transition-all duration-300 ${
-                    added
-                      ? 'bg-[var(--nc-lime)] text-[var(--nc-black)]'
-                      : 'bg-[var(--nc-purple)] text-white hover:bg-[var(--nc-purple-dark)]'
-                  }`}
-                >
-                  {adding ? (
-                    <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  ) : added ? (
-                    'ADDED ✓'
-                  ) : (
-                    'ADD TO BAG'
-                  )}
-                </button>
-              )}
+              {/* Add to Cart */}
+              <button
+                onClick={handleAddToCart}
+                disabled={adding}
+                className={`w-full mt-8 py-4 text-xs uppercase tracking-[0.08em] font-medium transition-all duration-300 ${
+                  added
+                    ? 'bg-[var(--nc-lime)] text-[var(--nc-black)]'
+                    : 'bg-[var(--nc-purple)] text-white hover:bg-[var(--nc-purple-dark)]'
+                }`}
+              >
+                {adding ? (
+                  <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : added ? (
+                  'ADDED ✓'
+                ) : (
+                  'ADD TO BAG'
+                )}
+              </button>
 
               {/* Accordions */}
               <div className="mt-8 space-y-0">
@@ -352,8 +447,8 @@ export default function ProductDetailPage() {
                 You Might Also Like
               </h2>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-                {relatedProducts.map((product, index) => (
-                  <ProductCard key={product.id} product={product} index={index} />
+                {relatedProducts.map((p, index) => (
+                  <ProductCard key={p.id} product={p} index={index} />
                 ))}
               </div>
             </div>
