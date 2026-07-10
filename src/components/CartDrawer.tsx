@@ -2,6 +2,13 @@ import { useEffect } from 'react';
 import { X, Minus, Plus, ShoppingBag } from 'lucide-react';
 import { useShopifyCartStore } from '@/stores/shopifyCartStore';
 
+function getCheckoutUrlWithReturn(checkoutUrl: string | null): string {
+  if (!checkoutUrl) return '#';
+  const returnUrl = `${window.location.origin}${window.location.pathname}`;
+  const separator = checkoutUrl.includes('?') ? '&' : '?';
+  return `${checkoutUrl}${separator}return_to=${encodeURIComponent(returnUrl)}`;
+}
+
 export default function CartDrawer() {
   const { items, isOpen, setOpen, removeItem, updateQuantity, subtotal, checkoutUrl, isLoading } = useShopifyCartStore();
 
@@ -119,7 +126,7 @@ export default function CartDrawer() {
               </div>
               {checkoutUrl ? (
                 <a
-                  href={checkoutUrl}
+                  href={getCheckoutUrlWithReturn(checkoutUrl)}
                   className="btn-primary w-full text-xs py-4 flex items-center justify-center"
                 >
                   CHECKOUT
