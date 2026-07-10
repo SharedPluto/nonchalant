@@ -34,6 +34,7 @@ export const categories: Category[] = [
 export const products: Product[] = [
   {
     id: '1',
+    handle: 'air-force-1-07',
     name: 'Air Force 1 \'07',
     brand: 'Nike',
     brandSlug: 'nike',
@@ -53,6 +54,7 @@ export const products: Product[] = [
   },
   {
     id: '2',
+    handle: 'samba-og',
     name: 'Samba OG',
     brand: 'Adidas',
     brandSlug: 'adidas',
@@ -72,6 +74,7 @@ export const products: Product[] = [
   },
   {
     id: '3',
+    handle: '550',
     name: '550',
     brand: 'New Balance',
     brandSlug: 'new-balance',
@@ -91,6 +94,7 @@ export const products: Product[] = [
   },
   {
     id: '4',
+    handle: 'nylon-metal-jacket',
     name: 'Nylon Metal Jacket',
     brand: 'Stone Island',
     brandSlug: 'stone-island',
@@ -110,6 +114,7 @@ export const products: Product[] = [
   },
   {
     id: '5',
+    handle: 'detroit-jacket',
     name: 'Detroit Jacket',
     brand: 'Carhartt WIP',
     brandSlug: 'carhartt-wip',
@@ -129,6 +134,7 @@ export const products: Product[] = [
   },
   {
     id: '6',
+    handle: 'world-tour-tee',
     name: 'World Tour Tee',
     brand: 'Stussy',
     brandSlug: 'stussy',
@@ -148,6 +154,7 @@ export const products: Product[] = [
   },
   {
     id: '7',
+    handle: 'box-logo-hoodie',
     name: 'Box Logo Hoodie',
     brand: 'Supreme',
     brandSlug: 'supreme',
@@ -167,6 +174,7 @@ export const products: Product[] = [
   },
   {
     id: '8',
+    handle: 'logo-backpack',
     name: 'Logo Backpack',
     brand: 'Y-3',
     brandSlug: 'y-3',
@@ -186,6 +194,7 @@ export const products: Product[] = [
   },
   {
     id: '9',
+    handle: 'chuck-70-high',
     name: 'Chuck 70 High',
     brand: 'Converse',
     brandSlug: 'converse',
@@ -205,6 +214,7 @@ export const products: Product[] = [
   },
   {
     id: '10',
+    handle: 'tech-cargo-pants',
     name: 'Tech Cargo Pants',
     brand: 'A-COLD-WALL*',
     brandSlug: 'a-cold-wall',
@@ -224,6 +234,7 @@ export const products: Product[] = [
   },
   {
     id: '11',
+    handle: 'oversized-hoodie',
     name: 'Oversized Hoodie',
     brand: 'A-COLD-WALL*',
     brandSlug: 'a-cold-wall',
@@ -243,6 +254,7 @@ export const products: Product[] = [
   },
   {
     id: '12',
+    handle: 'dunk-low-retro',
     name: 'Dunk Low Retro',
     brand: 'Nike',
     brandSlug: 'nike',
@@ -262,6 +274,7 @@ export const products: Product[] = [
   },
   {
     id: '13',
+    handle: 'track-jacket',
     name: 'Track Jacket',
     brand: 'Palm Angels',
     brandSlug: 'palm-angels',
@@ -281,6 +294,7 @@ export const products: Product[] = [
   },
   {
     id: '14',
+    handle: 'messenger-bag',
     name: 'Messenger Bag',
     brand: 'A-COLD-WALL*',
     brandSlug: 'a-cold-wall',
@@ -300,6 +314,7 @@ export const products: Product[] = [
   },
   {
     id: '15',
+    handle: 'raw-denim-jeans',
     name: 'Raw Denim Jeans',
     brand: 'Carhartt WIP',
     brandSlug: 'carhartt-wip',
@@ -319,6 +334,7 @@ export const products: Product[] = [
   },
   {
     id: '16',
+    handle: 'nuptse-jacket',
     name: 'Nuptse Jacket',
     brand: 'The North Face',
     brandSlug: 'the-north-face',
@@ -338,6 +354,7 @@ export const products: Product[] = [
   },
   {
     id: '17',
+    handle: 'crossbody-bag',
     name: 'Crossbody Bag',
     brand: 'Stone Island',
     brandSlug: 'stone-island',
@@ -357,6 +374,7 @@ export const products: Product[] = [
   },
   {
     id: '18',
+    handle: 'retro-sport-sunglasses',
     name: 'Retro Sport Sunglasses',
     brand: 'Palm Angels',
     brandSlug: 'palm-angels',

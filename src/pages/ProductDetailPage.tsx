@@ -51,7 +51,7 @@ const PRODUCT_QUERY = `
 `;
 
 export default function ProductDetailPage() {
-  const { id } = useParams<{ id: string }>();
+  const { handle } = useParams<{ handle: string }>();
   const navigate = useNavigate();
   const { addItem, lastAdded } = useShopifyCartStore();
 
@@ -81,16 +81,11 @@ export default function ProductDetailPage() {
     setLoading(true);
 
     async function fetchProduct() {
-      if (!id) return;
+      if (!handle) return;
 
       // Try to find by handle first (if id looks like a handle)
       // Also try static product handle mapping
-      const staticProd = staticProducts.find(p => p.id === id);
-      const handle = staticProd?.name.toLowerCase()
-        .replace(/'/g, '')
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/-+/g, '-')
-        .replace(/^-|-$/g, '') || id;
+      const staticProd = staticProducts.find(p => p.handle === handle);
 
       try {
         const result = await client.request(PRODUCT_QUERY, { variables: { handle } });
@@ -119,7 +114,7 @@ export default function ProductDetailPage() {
     }
 
     fetchProduct();
-  }, [id]);
+  }, [handle]);
 
   // Get related products from static data
   const relatedProducts = product ? getRelatedProducts(product) : [];
@@ -133,15 +128,7 @@ export default function ProductDetailPage() {
     }
 
     if (!variantId) {
-      // Try to get variant ID for selected size
-      const staticProd = staticProducts.find(p => p.id === product.id);
-      const handle = staticProd?.name.toLowerCase()
-        .replace(/'/g, '')
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/-+/g, '-')
-        .replace(/^-|-$/g, '') || product.id;
-      
-      const vid = await getVariantIdForProductSize(handle, selectedSize);
+      const vid = await getVariantIdForProductSize(product.handle, selectedSize);
       if (vid) {
         setVariantId(vid);
         doAddToCart(vid);
@@ -167,16 +154,8 @@ export default function ProductDetailPage() {
     setSelectedSize(size);
     setSizeError(false);
 
-    // Get variant ID for this size
     if (product) {
-      const staticProd = staticProducts.find(p => p.id === product.id);
-      const handle = staticProd?.name.toLowerCase()
-        .replace(/'/g, '')
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/-+/g, '-')
-        .replace(/^-|-$/g, '') || product.id;
-      
-      const vid = await getVariantIdForProductSize(handle, size);
+      const vid = await getVariantIdForProductSize(product.handle, size);
       if (vid) setVariantId(vid);
     }
   }, [product]);
@@ -212,7 +191,7 @@ export default function ProductDetailPage() {
     );
   }
 
-  const productUrl = `https://nonchalant.co/#/product/${product.id}`;
+  const productUrl = `https://nonchalant.co/#/product/${product.handle}`;
   const productImage = product.images[0] || '';
 
   return (

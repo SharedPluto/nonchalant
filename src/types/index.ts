@@ -1,5 +1,6 @@
 export interface Product {
   id: string;
+  handle: string;
   name: string;
   brand: string;
   brandSlug: string;

@@ -9,7 +9,7 @@ interface ProductCardProps {
 export default function ProductCard({ product, index = 0 }: ProductCardProps) {
   return (
     <Link
-      to={`/product/${product.id}`}
+      to={`/product/${product.handle}`}
       className="group block bg-[var(--nc-card-bg)] overflow-hidden animate-fade-in"
       style={{ animationDelay: `${index * 0.06}s`, animationFillMode: 'both' }}
     >

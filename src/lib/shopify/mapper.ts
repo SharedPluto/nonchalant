@@ -87,6 +87,7 @@ export function mapShopifyProductToProduct(sp: ShopifyProduct): Product {
 
   return {
     id: sp.id.split('/').pop() || sp.handle,
+    handle: sp.handle,
     name: sp.title,
     brand: sp.vendor,
     brandSlug,
