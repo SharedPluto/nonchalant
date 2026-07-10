@@ -104,6 +104,12 @@ export default function QuickViewModal({ productHandle, onClose }: QuickViewModa
   const handleAddToCart = async () => {
     if (!product || !selectedSize || !shopifyProduct) return;
 
+    // Block if selected size is out of stock
+    if (!isSizeInStock(selectedSize)) {
+      handleNotifyMe();
+      return;
+    }
+
     const variantId = getVariantIdForSize(shopifyProduct, selectedSize);
     if (!variantId) return;
 
@@ -145,6 +151,9 @@ export default function QuickViewModal({ productHandle, onClose }: QuickViewModa
     });
     return variant?.node.availableForSale ?? false;
   };
+
+  // Selected size stock status (derived from isSizeInStock)
+  const selectedSizeInStock = selectedSize ? isSizeInStock(selectedSize) : true;
 
   // Get available sizes
   const availableSizes = product?.sizes || [];
@@ -305,22 +314,18 @@ export default function QuickViewModal({ productHandle, onClose }: QuickViewModa
                       return (
                         <button
                           key={size}
-                          onClick={() => inStock && setSelectedSize(size)}
-                          disabled={!inStock}
-                          className={`py-2.5 text-[11px] border transition-all relative ${
+                          onClick={() => setSelectedSize(size)}
+                          className={`py-2.5 text-[11px] border transition-all ${
                             selectedSize === size
-                              ? 'border-[var(--nc-purple)] bg-[var(--nc-purple)] text-white'
+                              ? inStock
+                                ? 'border-[var(--nc-purple)] bg-[var(--nc-purple)] text-white'
+                                : 'border-[var(--nc-text)] bg-[var(--nc-text)] text-[var(--nc-bg)]'
                               : inStock
                                 ? 'border-[var(--nc-border)] hover:border-[var(--nc-purple)] text-[var(--nc-text)]'
-                                : 'border-[var(--nc-border)]/50 text-[var(--nc-grey)]/40 cursor-not-allowed'
+                                : 'border-[var(--nc-border)] text-[var(--nc-grey)] hover:border-[var(--nc-text)]'
                           }`}
                         >
                           {size}
-                          {!inStock && (
-                            <span className="absolute inset-0 flex items-center justify-center">
-                              <span className="w-full h-px bg-[var(--nc-grey)]/30 rotate-12" />
-                            </span>
-                          )}
                         </button>
                       );
                     })}
@@ -330,7 +335,16 @@ export default function QuickViewModal({ productHandle, onClose }: QuickViewModa
 
               {/* Actions */}
               <div className="mt-auto space-y-3">
-                {product.inStock ? (
+                {selectedSize && !selectedSizeInStock ? (
+                  /* Selected size out of stock - Notify me */
+                  <button
+                    onClick={handleNotifyMe}
+                    className="w-full py-3.5 flex items-center justify-center gap-2 text-[11px] uppercase tracking-wider font-medium bg-[var(--nc-text)] text-[var(--nc-bg)] hover:bg-[var(--nc-purple)] hover:text-white transition-all"
+                  >
+                    <Bell size={15} />
+                    Notify Me — Size {selectedSize}
+                  </button>
+                ) : (
                   /* In stock - Add to cart */
                   <button
                     onClick={handleAddToCart}
@@ -354,15 +368,6 @@ export default function QuickViewModal({ productHandle, onClose }: QuickViewModa
                         Add to Bag
                       </>
                     )}
-                  </button>
-                ) : (
-                  /* Out of stock - Notify me */
-                  <button
-                    onClick={handleNotifyMe}
-                    className="w-full py-3.5 flex items-center justify-center gap-2 text-[11px] uppercase tracking-wider font-medium border border-[var(--nc-text)] text-[var(--nc-text)] hover:bg-[var(--nc-text)] hover:text-[var(--nc-bg)] transition-all"
-                  >
-                    <Bell size={15} />
-                    Notify Me When Available
                   </button>
                 )}
 

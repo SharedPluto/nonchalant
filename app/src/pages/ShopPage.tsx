@@ -6,7 +6,6 @@ import { useShopifyProducts } from '@/hooks/useShopifyProduct';
 import { useScrollDirection } from '@/hooks/useScrollDirection';
 import ProductCard from '@/components/ProductCard';
 import QuickViewModal from '@/components/QuickViewModal';
-import WaitlistModal from '@/components/WaitlistModal';
 import FloatingFilterPill from '@/components/FloatingFilterPill';
 import MetaTags from '@/components/seo/MetaTags';
 
@@ -511,9 +510,6 @@ export default function ShopPage() {
           productHandle={quickViewHandle}
           onClose={() => setQuickViewHandle(null)}
         />
-
-        {/* Waitlist Modal */}
-        <WaitlistModal />
       </main>
     </>
   );

@@ -17,6 +17,7 @@ import TermsPage from '@/pages/TermsPage';
 import PrivacyPage from '@/pages/PrivacyPage';
 import AuthenticityPage from '@/pages/AuthenticityPage';
 import AdminWaitlistPage from '@/pages/AdminWaitlistPage';
+import WaitlistModal from '@/components/WaitlistModal';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
         <SitemapGenerator />
         <Header />
         <CartDrawer />
+        <WaitlistModal />
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/shop" element={<ShopPage />} />

@@ -3,27 +3,35 @@ import { X, Bell, Check } from 'lucide-react';
 import { useWaitlistStore } from '@/stores/waitlistStore';
 
 export default function WaitlistModal() {
-  const { isModalOpen, targetProduct, targetSize, closeModal, addEntry } = useWaitlistStore();
+  const { isModalOpen, targetProduct, closeModal, addEntry } = useWaitlistStore();
   const [email, setEmail] = useState('');
-  const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
 
   if (!isModalOpen || !targetProduct) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim() || !email.includes('@')) return;
-    addEntry(email);
-    setSubmitted(true);
-    setEmail('');
-    setTimeout(() => {
-      setSubmitted(false);
-      closeModal();
-    }, 2000);
+
+    setSubmitting(true);
+    const response = await addEntry(email);
+    setResult(response);
+    setSubmitting(false);
+
+    // Auto-close after showing success for 2.5 seconds
+    if (response.success) {
+      setTimeout(() => {
+        setResult(null);
+        setEmail('');
+        closeModal();
+      }, 2500);
+    }
   };
 
   const handleClose = () => {
     setEmail('');
-    setSubmitted(false);
+    setResult(null);
     closeModal();
   };
 
@@ -45,7 +53,7 @@ export default function WaitlistModal() {
           <X size={18} />
         </button>
 
-        {submitted ? (
+        {result?.success ? (
           /* Success state */
           <div className="flex flex-col items-center text-center py-4">
             <div className="w-12 h-12 rounded-full bg-[var(--nc-purple)]/10 flex items-center justify-center mb-4">
@@ -55,7 +63,7 @@ export default function WaitlistModal() {
               You're on the list
             </h3>
             <p className="text-[13px] text-[var(--nc-grey)]">
-              We'll email you when this item is back in stock.
+              {result.message}
             </p>
           </div>
         ) : (
@@ -75,15 +83,22 @@ export default function WaitlistModal() {
             <p className="text-[13px] text-[var(--nc-text)] mb-1">
               {targetProduct.name}
             </p>
-            {targetSize && (
+
+            {/* Size */}
+            {useWaitlistStore.getState().targetSize && (
               <p className="text-[11px] text-[var(--nc-grey)] mb-4">
-                Size: {targetSize}
+                Size: {useWaitlistStore.getState().targetSize}
               </p>
             )}
 
             <p className="text-[12px] text-[var(--nc-grey)] mb-6 max-w-[280px]">
               Enter your email and we'll let you know when this item is back in stock.
             </p>
+
+            {/* Error message */}
+            {result && !result.success && (
+              <p className="text-[var(--nc-red)] text-[12px] mb-3">{result.message}</p>
+            )}
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="w-full">
@@ -94,12 +109,18 @@ export default function WaitlistModal() {
                 placeholder="your@email.com"
                 className="w-full px-4 py-3 bg-[var(--nc-offwhite)] border border-[var(--nc-border)] text-[13px] placeholder:text-[var(--nc-grey)] outline-none focus:border-[var(--nc-purple)] transition-colors mb-3"
                 required
+                disabled={submitting}
               />
               <button
                 type="submit"
-                className="w-full py-3 bg-[var(--nc-purple)] text-white text-[11px] uppercase tracking-wider font-medium hover:opacity-90 transition-opacity"
+                disabled={submitting}
+                className="w-full py-3 bg-[var(--nc-purple)] text-white text-[11px] uppercase tracking-wider font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
               >
-                Notify Me
+                {submitting ? (
+                  <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  'Notify Me'
+                )}
               </button>
             </form>
 
