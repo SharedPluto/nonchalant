@@ -1,0 +1,251 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 262 100% 46%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 262 100% 46%;
+    --radius: 0rem;
+
+    /* NonChalant Custom Colors */
+    --nc-cream: #F7F5F0;
+    --nc-purple: #6200EA;
+    --nc-purple-dark: #4A00B5;
+    --nc-black: #0A0A0A;
+    --nc-grey: #8A8A8A;
+    --nc-lime: #D4FF00;
+    --nc-offwhite: #F5F5F5;
+    --nc-white: #FFFFFF;
+    --nc-dark-surface: #1A1A1A;
+    --nc-dark-border: #2A2A2A;
+    --nc-red: #FF3B3B;
+
+    --nc-bg: #F7F5F0;
+    --nc-text: #0A0A0A;
+    --nc-text-secondary: #8A8A8A;
+    --nc-border: rgba(0, 0, 0, 0.08);
+    --nc-card-bg: #FFFFFF;
+    --nc-input-bg: #FFFFFF;
+    --nc-text-dimmed: rgba(10, 10, 10, 0.4);
+  }
+
+  [data-theme="dark"] {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 262 100% 46%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 262 100% 46%;
+
+    --nc-bg: #0A0A0A;
+    --nc-text: #F7F5F0;
+    --nc-text-secondary: #A0A0A0;
+    --nc-border: rgba(255, 255, 255, 0.08);
+    --nc-card-bg: #1A1A1A;
+    --nc-input-bg: #1A1A1A;
+    --nc-text-dimmed: rgba(247, 245, 240, 0.4);
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background-color: var(--nc-bg);
+    color: var(--nc-text);
+    transition: background-color 0.5s ease, color 0.5s ease;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Geist', system-ui, -apple-system, sans-serif;
+  }
+}
+
+@layer components {
+  .font-display {
+    font-family: 'Geist', system-ui, -apple-system, sans-serif;
+  }
+
+  .font-accent {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-style: italic;
+  }
+
+  .text-eyebrow {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--nc-purple);
+  }
+
+  .btn-primary {
+    background-color: var(--nc-purple);
+    color: #FFFFFF;
+    text-transform: uppercase;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    padding: 14px 28px;
+    transition: background-color 0.3s ease;
+  }
+
+  .btn-primary:hover {
+    background-color: var(--nc-purple-dark);
+  }
+
+  .btn-secondary {
+    background-color: transparent;
+    border: 1px solid var(--nc-text);
+    color: var(--nc-text);
+    text-transform: uppercase;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    padding: 12px 24px;
+    transition: all 0.3s ease;
+  }
+
+  .btn-secondary:hover {
+    background-color: var(--nc-text);
+    color: var(--nc-cream);
+  }
+
+  .panel-hover-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 120px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+  }
+}
+
+/* Scroll progress bar */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background-color: var(--nc-purple);
+  z-index: 80;
+  transform-origin: left;
+  transition: transform 0.1s linear;
+}
+
+/* Glass effect */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* Animations */
+@keyframes bounce-scroll {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(8px); }
+}
+
+@keyframes float-shape-1 {
+  0%, 100% { transform: translateY(0) rotateY(0deg); }
+  25% { transform: translateY(-10px) rotateY(90deg); }
+  50% { transform: translateY(0) rotateY(180deg); }
+  75% { transform: translateY(10px) rotateY(270deg); }
+  100% { transform: translateY(0) rotateY(360deg); }
+}
+
+@keyframes float-shape-2 {
+  0%, 100% { transform: translateY(0) rotateY(0deg); }
+  50% { transform: translateY(-15px) rotateY(180deg); }
+  100% { transform: translateY(0) rotateY(360deg); }
+}
+
+@keyframes float-shape-3 {
+  0%, 100% { transform: translateY(0) rotateY(0deg); }
+  33% { transform: translateY(12px) rotateY(120deg); }
+  66% { transform: translateY(-8px) rotateY(240deg); }
+  100% { transform: translateY(0) rotateY(360deg); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  50% { transform: translateX(4px); }
+  75% { transform: translateX(-4px); }
+}
+
+.animate-bounce-scroll {
+  animation: bounce-scroll 2s infinite ease;
+}
+
+.animate-float-1 {
+  animation: float-shape-1 20s linear infinite, float-shape-1 6s ease-in-out infinite alternate;
+}
+
+.animate-float-2 {
+  animation: float-shape-2 18s linear infinite;
+}
+
+.animate-float-3 {
+  animation: float-shape-3 22s linear infinite;
+}
+
+.animate-shake {
+  animation: shake 0.3s ease;
+}
+
+/* Hide scrollbar for aesthetic panels */
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Selection */
+::selection {
+  background-color: var(--nc-purple);
+  color: white;
+}

@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://nonchalant.co/sitemap.xml
+
+# Disallow
+Disallow: /api/
+Disallow: /checkout/
