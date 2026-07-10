@@ -9,6 +9,13 @@ import HomePage from '@/pages/HomePage';
 import ShopPage from '@/pages/ShopPage';
 import ProductDetailPage from '@/pages/ProductDetailPage';
 import AboutPage from '@/pages/AboutPage';
+import SizeGuidePage from '@/pages/SizeGuidePage';
+import ShippingPage from '@/pages/ShippingPage';
+import ReturnsPage from '@/pages/ReturnsPage';
+import FAQPage from '@/pages/FAQPage';
+import TermsPage from '@/pages/TermsPage';
+import PrivacyPage from '@/pages/PrivacyPage';
+import AuthenticityPage from '@/pages/AuthenticityPage';
 
 function App() {
   return (
@@ -23,6 +30,13 @@ function App() {
           <Route path="/shop" element={<ShopPage />} />
           <Route path="/product/:handle" element={<ProductDetailPage />} />
           <Route path="/about" element={<AboutPage />} />
+          <Route path="/size-guide" element={<SizeGuidePage />} />
+          <Route path="/shipping" element={<ShippingPage />} />
+          <Route path="/returns" element={<ReturnsPage />} />
+          <Route path="/faq" element={<FAQPage />} />
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/authenticity" element={<AuthenticityPage />} />
         </Routes>
         <Footer />
       </HashRouter>
