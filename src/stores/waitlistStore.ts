@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { getShopifyClient } from '@/lib/shopify/client';
+import { showToast } from '@/components/ToastNotification';
 
 const client = getShopifyClient();
 
@@ -144,14 +145,21 @@ export const useWaitlistStore = create<WaitlistState>()(
           targetSize: undefined,
         });
 
+        // Trigger toast notification
+        showToast(
+          "You're on the list!",
+          targetProduct.name,
+          targetSize
+        );
+
         if (shopifyResult.success) {
           if (shopifyResult.alreadyExists) {
-            return { success: true, message: "You're on the list! (You were already subscribed to our newsletter.)" };
+            return { success: true, message: "You're on the list! You were already subscribed to our newsletter." };
           }
-          return { success: true, message: "You're on the list! We'll email you when it's back in stock." };
+          return { success: true, message: "We'll email you as soon as this item is back in stock." };
         } else {
           // Saved locally but Shopify sync failed
-          return { success: true, message: "You're on the list! We'll email you when it's back in stock." };
+          return { success: true, message: "We'll email you as soon as this item is back in stock." };
         }
       },
 

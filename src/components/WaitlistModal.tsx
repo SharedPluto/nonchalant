@@ -1,12 +1,21 @@
-import { useState } from 'react';
-import { X, Bell, Check } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { X, Bell, Check, Mail } from 'lucide-react';
 import { useWaitlistStore } from '@/stores/waitlistStore';
 
 export default function WaitlistModal() {
-  const { isModalOpen, targetProduct, closeModal, addEntry } = useWaitlistStore();
+  const { isModalOpen, targetProduct, targetSize, closeModal, addEntry } = useWaitlistStore();
   const [email, setEmail] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
+
+  // Reset when modal opens
+  useEffect(() => {
+    if (isModalOpen) {
+      setEmail('');
+      setResult(null);
+      setSubmitting(false);
+    }
+  }, [isModalOpen]);
 
   if (!isModalOpen || !targetProduct) return null;
 
@@ -18,15 +27,6 @@ export default function WaitlistModal() {
     const response = await addEntry(email);
     setResult(response);
     setSubmitting(false);
-
-    // Auto-close after showing success for 2.5 seconds
-    if (response.success) {
-      setTimeout(() => {
-        setResult(null);
-        setEmail('');
-        closeModal();
-      }, 2500);
-    }
   };
 
   const handleClose = () => {
@@ -44,31 +44,67 @@ export default function WaitlistModal() {
       />
 
       {/* Modal */}
-      <div className="relative bg-[var(--nc-bg)] w-full max-w-[420px] p-8 shadow-2xl">
+      <div className="relative bg-[var(--nc-bg)] w-full max-w-[420px] shadow-2xl overflow-hidden">
         {/* Close button */}
         <button
           onClick={handleClose}
-          className="absolute top-4 right-4 text-[var(--nc-grey)] hover:text-[var(--nc-text)] transition-colors"
+          className="absolute top-4 right-4 z-10 text-[var(--nc-grey)] hover:text-[var(--nc-text)] transition-colors"
         >
           <X size={18} />
         </button>
 
         {result?.success ? (
-          /* Success state */
-          <div className="flex flex-col items-center text-center py-4">
-            <div className="w-12 h-12 rounded-full bg-[var(--nc-purple)]/10 flex items-center justify-center mb-4">
-              <Check size={24} className="text-[var(--nc-purple)]" />
+          /* ===== SUCCESS STATE — Big, bold, unmistakable ===== */
+          <div className="flex flex-col items-center text-center px-8 py-10">
+            {/* Large animated checkmark */}
+            <div className="w-16 h-16 rounded-full bg-[var(--nc-purple)] flex items-center justify-center mb-5 animate-success-pop">
+              <Check size={32} className="text-white" strokeWidth={3} />
             </div>
-            <h3 className="text-sm font-medium uppercase tracking-wider mb-2">
-              You're on the list
+
+            {/* Confirmed heading */}
+            <h3 className="text-lg font-medium uppercase tracking-wider mb-2 text-[var(--nc-text)]">
+              You're All Set
             </h3>
-            <p className="text-[13px] text-[var(--nc-grey)]">
-              {result.message}
+
+            {/* Product confirmation */}
+            <p className="text-[14px] text-[var(--nc-text)] font-medium mb-1">
+              {targetProduct.name}
             </p>
+            {targetSize && (
+              <p className="text-[12px] text-[var(--nc-purple)] uppercase tracking-wider mb-3">
+                Size {targetSize}
+              </p>
+            )}
+
+            {/* Success message */}
+            <div className="bg-[var(--nc-offwhite)] border border-[var(--nc-purple)]/20 px-5 py-3 mb-5 max-w-[320px]">
+              <div className="flex items-center gap-2 justify-center mb-1">
+                <Mail size={14} className="text-[var(--nc-purple)]" />
+                <span className="text-[12px] font-medium text-[var(--nc-text)]">
+                  Email Confirmed
+                </span>
+              </div>
+              <p className="text-[12px] text-[var(--nc-grey)] leading-relaxed">
+                {result.message}
+              </p>
+            </div>
+
+            {/* What happens next */}
+            <p className="text-[11px] text-[var(--nc-grey)] mb-6 max-w-[280px] leading-relaxed">
+              We'll email you the moment this item is back in stock. No spam, just a single notification.
+            </p>
+
+            {/* Done button */}
+            <button
+              onClick={handleClose}
+              className="px-10 py-3 bg-[var(--nc-purple)] text-white text-[11px] uppercase tracking-wider font-medium hover:opacity-90 transition-opacity"
+            >
+              Got It
+            </button>
           </div>
         ) : (
-          /* Form state */
-          <div className="flex flex-col items-center text-center">
+          /* ===== FORM STATE ===== */
+          <div className="flex flex-col items-center text-center px-8 py-8">
             {/* Icon */}
             <div className="w-12 h-12 rounded-full bg-[var(--nc-purple)]/10 flex items-center justify-center mb-4">
               <Bell size={20} className="text-[var(--nc-purple)]" />
@@ -80,14 +116,14 @@ export default function WaitlistModal() {
             </h3>
 
             {/* Product name */}
-            <p className="text-[13px] text-[var(--nc-text)] mb-1">
+            <p className="text-[13px] text-[var(--nc-text)] font-medium mb-1">
               {targetProduct.name}
             </p>
 
             {/* Size */}
-            {useWaitlistStore.getState().targetSize && (
-              <p className="text-[11px] text-[var(--nc-grey)] mb-4">
-                Size: {useWaitlistStore.getState().targetSize}
+            {targetSize && (
+              <p className="text-[11px] text-[var(--nc-purple)] uppercase tracking-wider mb-4">
+                Size {targetSize}
               </p>
             )}
 
@@ -97,7 +133,9 @@ export default function WaitlistModal() {
 
             {/* Error message */}
             {result && !result.success && (
-              <p className="text-[var(--nc-red)] text-[12px] mb-3">{result.message}</p>
+              <div className="w-full bg-[var(--nc-red)]/10 border border-[var(--nc-red)]/20 px-4 py-2 mb-3">
+                <p className="text-[var(--nc-red)] text-[12px]">{result.message}</p>
+              </div>
             )}
 
             {/* Form */}
@@ -114,18 +152,24 @@ export default function WaitlistModal() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="w-full py-3 bg-[var(--nc-purple)] text-white text-[11px] uppercase tracking-wider font-medium hover:opacity-90 transition-opacity disabled:opacity-50"
+                className="w-full py-3.5 bg-[var(--nc-purple)] text-white text-[11px] uppercase tracking-wider font-medium hover:opacity-90 transition-opacity disabled:opacity-50 flex items-center justify-center gap-2"
               >
                 {submitting ? (
-                  <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  <>
+                    <span className="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Saving...
+                  </>
                 ) : (
-                  'Notify Me'
+                  <>
+                    <Bell size={14} />
+                    Notify Me
+                  </>
                 )}
               </button>
             </form>
 
             <p className="text-[10px] text-[var(--nc-grey)] mt-4">
-              We respect your privacy. Unsubscribe anytime.
+              We respect your privacy. One email per restock. Unsubscribe anytime.
             </p>
           </div>
         )}

@@ -18,6 +18,7 @@ import PrivacyPage from '@/pages/PrivacyPage';
 import AuthenticityPage from '@/pages/AuthenticityPage';
 import AdminWaitlistPage from '@/pages/AdminWaitlistPage';
 import WaitlistModal from '@/components/WaitlistModal';
+import ToastNotification from '@/components/ToastNotification';
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
         <Header />
         <CartDrawer />
         <WaitlistModal />
+        <ToastNotification />
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/shop" element={<ShopPage />} />
