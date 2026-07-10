@@ -145,6 +145,15 @@
     color: var(--nc-cream);
   }
 
+    /* Hide scrollbar utility */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
   .panel-hover-overlay {
     position: absolute;
     bottom: 0;

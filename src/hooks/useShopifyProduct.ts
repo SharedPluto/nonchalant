@@ -267,3 +267,47 @@ export async function getVariantIdForProductSize(productHandle: string, size: st
     return null;
   }
 }
+
+// Fetch related products that share brand or aesthetic tags with the given product
+// Uses client-side filtering since Shopify Storefront API doesn't support complex tag queries
+export function useShopifyRelatedProducts(currentProductHandle: string | undefined, brandTag: string, aestheticTag: string, first: number = 50) {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!currentProductHandle) {
+      setLoading(false);
+      return;
+    }
+
+    async function fetch() {
+      setLoading(true);
+      try {
+        const result = await client.request(PRODUCTS_QUERY, { variables: { first } });
+        const edges = result.data?.products?.edges || [];
+        const allProducts = edges.map((e: any) => mapShopifyProductToProduct(e.node));
+
+        // Filter: products that share the brand OR aesthetic tag, excluding current product
+        const related = allProducts
+          .filter((p: Product) => {
+            if (p.handle === currentProductHandle) return false;
+            const brandMatch = p.brand.toLowerCase() === brandTag.toLowerCase();
+            const aestheticMatch = p.aestheticSlug.toLowerCase() === aestheticTag.toLowerCase();
+            return brandMatch || aestheticMatch;
+          })
+          .slice(0, 4);
+
+        setProducts(related);
+      } catch (err) {
+        console.error('Error loading related products:', err);
+        setProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetch();
+  }, [currentProductHandle, brandTag, aestheticTag, first]);
+
+  return { products, loading };
+}

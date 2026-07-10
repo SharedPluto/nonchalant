@@ -2,8 +2,8 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import { useShopifyCartStore } from '@/stores/shopifyCartStore';
-import { getVariantIdForProductSize } from '@/hooks/useShopifyProduct';
-import { products as staticProducts, getRelatedProducts } from '@/data/products';
+import { getVariantIdForProductSize, useShopifyRelatedProducts } from '@/hooks/useShopifyProduct';
+import { products as staticProducts } from '@/data/products';
 import ProductCard from '@/components/ProductCard';
 import MetaTags from '@/components/seo/MetaTags';
 import { getShopifyClient } from '@/lib/shopify/client';
@@ -68,6 +68,14 @@ export default function ProductDetailPage() {
   const [sizeError, setSizeError] = useState(false);
   const [accordionOpen, setAccordionOpen] = useState<string | null>(null);
 
+  // Fetch related products from Shopify (shares brand or aesthetic with current product)
+  const { products: shopifyRelatedProducts, loading: relatedLoading } = useShopifyRelatedProducts(
+    product?.handle,
+    product?.brand || '',
+    product?.aestheticSlug || '',
+    50
+  );
+
   const sizeRef = useRef<HTMLDivElement>(null);
 
   // Fetch from Shopify
@@ -117,7 +125,7 @@ export default function ProductDetailPage() {
   }, [handle]);
 
   // Get related products from static data
-  const relatedProducts = product ? getRelatedProducts(product) : [];
+  // Related products fetched from Shopify via useShopifyRelatedProducts hook above
 
   const handleAddToCart = async () => {
     if (!product || !selectedSize) {
@@ -419,17 +427,24 @@ export default function ProductDetailPage() {
         </div>
 
         {/* Related Products */}
-        {relatedProducts.length > 0 && (
+        {/* You Might Also Like - fetched from Shopify by brand/aesthetic */}
+        {(shopifyRelatedProducts.length > 0 || relatedLoading) && (
           <section className="bg-[var(--nc-offwhite)] border-t border-[var(--nc-border)] py-12 md:py-16">
             <div className="max-w-[1440px] mx-auto px-6 md:px-12">
               <h2 className="font-display text-2xl md:text-3xl uppercase tracking-[0.02em] mb-8">
                 You Might Also Like
               </h2>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-                {relatedProducts.map((p, index) => (
-                  <ProductCard key={p.id} product={p} index={index} />
-                ))}
-              </div>
+              {relatedLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-pulse text-[var(--nc-grey)]">Loading related products...</div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+                  {shopifyRelatedProducts.map((p, index) => (
+                    <ProductCard key={p.id} product={p} index={index} />
+                  ))}
+                </div>
+              )}
             </div>
           </section>
         )}

@@ -16,6 +16,7 @@ import FAQPage from '@/pages/FAQPage';
 import TermsPage from '@/pages/TermsPage';
 import PrivacyPage from '@/pages/PrivacyPage';
 import AuthenticityPage from '@/pages/AuthenticityPage';
+import AdminWaitlistPage from '@/pages/AdminWaitlistPage';
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
           <Route path="/terms" element={<TermsPage />} />
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/authenticity" element={<AuthenticityPage />} />
+          <Route path="/admin/waitlist" element={<AdminWaitlistPage />} />
         </Routes>
         <Footer />
       </HashRouter>
