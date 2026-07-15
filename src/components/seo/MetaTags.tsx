@@ -5,12 +5,14 @@ interface MetaTagsProps {
   description?: string;
   image?: string;
   url?: string;
-  type?: 'website' | 'product';
+  type?: 'website' | 'product' | 'article';
   price?: number;
   currency?: string;
   brand?: string;
   availability?: 'InStock' | 'OutOfStock';
   sku?: string;
+  publishedAt?: string;
+  author?: string;
 }
 
 const SITE_NAME = 'NonChalant';
@@ -29,6 +31,8 @@ export default function MetaTags({
   brand,
   availability = 'InStock',
   sku,
+  publishedAt,
+  author,
 }: MetaTagsProps) {
   const fullTitle = title ? `${title} | ${SITE_NAME}` : SITE_NAME;
 
@@ -52,6 +56,14 @@ export default function MetaTags({
       <meta name="twitter:title" content={fullTitle} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={image} />
+
+      {/* Article meta tags */}
+      {type === 'article' && (
+        <>
+          {publishedAt && <meta property="article:published_time" content={publishedAt} />}
+          {author && <meta property="article:author" content={author} />}
+        </>
+      )}
 
       {/* Product Schema (if product page) */}
       {type === 'product' && (

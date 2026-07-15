@@ -63,6 +63,12 @@ export default function Header() {
               What&apos;s New
             </Link>
             <Link
+              to="/blog"
+              className="text-[13px] font-medium uppercase tracking-[0.05em] text-[var(--nc-text)] hover:text-[var(--nc-purple)] transition-colors duration-300"
+            >
+              Journal
+            </Link>
+            <Link
               to="/about"
               className="text-[13px] font-medium uppercase tracking-[0.05em] text-[var(--nc-text)] hover:text-[var(--nc-purple)] transition-colors duration-300"
             >
@@ -131,6 +137,12 @@ export default function Header() {
               className="text-lg font-medium uppercase tracking-[0.05em] text-[var(--nc-text)] hover:text-[var(--nc-purple)] transition-colors"
             >
               What&apos;s New
+            </Link>
+            <Link
+              to="/blog"
+              className="text-lg font-medium uppercase tracking-[0.05em] text-[var(--nc-text)] hover:text-[var(--nc-purple)] transition-colors"
+            >
+              Journal
             </Link>
             <Link
               to="/about"

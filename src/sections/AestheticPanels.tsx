@@ -85,23 +85,36 @@ export default function AestheticPanels() {
               <img
                 src={aesthetic.image}
                 alt={aesthetic.name}
-                className={`absolute inset-0 w-full h-full object-cover transition-transform duration-500 ${
-                  hoveredIndex === index ? 'scale-[1.03]' : 'scale-100'
+                className={`absolute inset-0 w-full h-full object-cover transition-transform duration-700 ${
+                  hoveredIndex === index ? 'scale-[1.05]' : 'scale-100'
                 }`}
               />
 
               {/* Gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
 
-              {/* Text */}
-              <div className="absolute bottom-0 left-0 right-0 p-12">
-                <h3 className="text-white font-display text-4xl lg:text-5xl uppercase tracking-[0.02em]">
-                  {aesthetic.name}
-                </h3>
-                <p className="text-white/70 text-sm mt-2">{aesthetic.subtitle}</p>
+              {/* Vertical subtitle on the left edge */}
+              <div className="absolute left-4 top-0 bottom-0 flex items-center z-10">
+                <span
+                  className="text-white/50 text-[10px] uppercase tracking-[0.2em] whitespace-nowrap"
+                  style={{
+                    writingMode: 'vertical-rl',
+                    textOrientation: 'mixed',
+                    transform: 'rotate(180deg)',
+                  }}
+                >
+                  {aesthetic.subtitle}
+                </span>
               </div>
 
-              {/* Hover overlay */}
+              {/* Main title at top */}
+              <div className="absolute top-0 left-0 right-0 p-8">
+                <h3 className="text-white font-display text-3xl lg:text-4xl uppercase tracking-[0.02em] leading-tight">
+                  {aesthetic.name}
+                </h3>
+              </div>
+
+              {/* Hover overlay with Explore */}
               <div
                 className={`absolute bottom-0 left-0 right-0 h-[100px] glass-panel flex items-center justify-center transition-transform duration-300 ${
                   hoveredIndex === index ? 'translate-y-0' : 'translate-y-full'
@@ -129,12 +142,27 @@ export default function AestheticPanels() {
               alt={aesthetic.name}
               className="absolute inset-0 w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-            <div className="absolute bottom-0 left-0 right-0 p-8">
-              <h3 className="text-white font-display text-3xl uppercase tracking-[0.02em]">
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+
+            {/* Vertical subtitle on left */}
+            <div className="absolute left-4 top-0 bottom-0 flex items-center z-10">
+              <span
+                className="text-white/50 text-[10px] uppercase tracking-[0.2em] whitespace-nowrap"
+                style={{
+                  writingMode: 'vertical-rl',
+                  textOrientation: 'mixed',
+                  transform: 'rotate(180deg)',
+                }}
+              >
+                {aesthetic.subtitle}
+              </span>
+            </div>
+
+            {/* Title at top */}
+            <div className="absolute top-0 left-0 right-0 p-6">
+              <h3 className="text-white font-display text-2xl uppercase tracking-[0.02em] leading-tight">
                 {aesthetic.name}
               </h3>
-              <p className="text-white/70 text-sm mt-1">{aesthetic.subtitle}</p>
             </div>
           </div>
         ))}

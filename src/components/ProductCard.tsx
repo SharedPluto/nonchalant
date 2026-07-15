@@ -12,7 +12,10 @@ interface ProductCardProps {
 
 export default function ProductCard({ product, index = 0, onQuickView }: ProductCardProps) {
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const { openModal } = useWaitlistStore();
+
+  const hasSecondImage = product.images.length > 1;
 
   const handleNotifyMe = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -37,18 +40,33 @@ export default function ProductCard({ product, index = 0, onQuickView }: Product
       to={`/product/${product.handle}`}
       className="group block"
       style={{ animationDelay: `${index * 0.04}s`, animationFillMode: 'both' }}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       {/* Image — clean, no borders, no background card */}
       <div className="relative aspect-[3/4] bg-[var(--nc-offwhite)] overflow-hidden mb-2.5">
+        {/* First image — default */}
         <img
           src={product.images[0]}
           alt={product.name}
-          className={`w-full h-full object-cover transition-all duration-500 group-hover:scale-[1.03] ${
-            imageLoaded ? 'opacity-100' : 'opacity-0'
-          }`}
+          className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 ${
+            isHovered && hasSecondImage ? 'opacity-0' : 'opacity-100'
+          } ${isHovered ? 'scale-[1.03]' : 'scale-100'}`}
           loading="lazy"
           onLoad={() => setImageLoaded(true)}
         />
+
+        {/* Second image — shown on hover */}
+        {hasSecondImage && (
+          <img
+            src={product.images[1]}
+            alt={`${product.name} — alternate view`}
+            className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 ${
+              isHovered ? 'opacity-100 scale-[1.03]' : 'opacity-0 scale-100'
+            }`}
+            loading="lazy"
+          />
+        )}
 
         {/* Skeleton while loading */}
         {!imageLoaded && (

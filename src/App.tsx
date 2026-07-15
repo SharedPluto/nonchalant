@@ -17,6 +17,8 @@ import TermsPage from '@/pages/TermsPage';
 import PrivacyPage from '@/pages/PrivacyPage';
 import AuthenticityPage from '@/pages/AuthenticityPage';
 import AdminWaitlistPage from '@/pages/AdminWaitlistPage';
+import BlogListPage from '@/pages/BlogListPage';
+import BlogPostPage from '@/pages/BlogPostPage';
 import WaitlistModal from '@/components/WaitlistModal';
 import ToastNotification from '@/components/ToastNotification';
 
@@ -43,6 +45,8 @@ function App() {
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/authenticity" element={<AuthenticityPage />} />
           <Route path="/admin/waitlist" element={<AdminWaitlistPage />} />
+          <Route path="/blog" element={<BlogListPage />} />
+          <Route path="/blog/:handle" element={<BlogPostPage />} />
         </Routes>
         <Footer />
       </HashRouter>

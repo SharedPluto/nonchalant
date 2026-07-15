@@ -42,16 +42,27 @@ export interface ShopifyProduct {
 }
 
 export function mapShopifyProductToProduct(sp: ShopifyProduct): Product {
-  // Extract aesthetic from tags
-  const aestheticTags = ['minimalist', 'skater', 'tech', 'hypebeast'];
-  const aestheticSlug = sp.tags.find(t => aestheticTags.includes(t.toLowerCase())) || 'minimalist';
-  const aestheticMap: Record<string, string> = {
-    minimalist: 'Minimalist',
-    skater: 'Skater',
-    tech: 'Tech',
-    hypebeast: 'Hypebeast',
+  // Extract aesthetic from tags (supports both old and new tag names)
+  const aestheticTags = ['minimalist', 'skater', 'tech', 'hypebeast', 'easy-does-it', 'touch-grass', 'just-a-chill-guy', 'iykyk'];
+  const matchedTag = sp.tags.find(t => aestheticTags.includes(t.toLowerCase())) || 'minimalist';
+  const aestheticSlugMap: Record<string, string> = {
+    minimalist: 'easy-does-it',
+    'easy-does-it': 'easy-does-it',
+    skater: 'touch-grass',
+    'touch-grass': 'touch-grass',
+    tech: 'just-a-chill-guy',
+    'just-a-chill-guy': 'just-a-chill-guy',
+    hypebeast: 'iykyk',
+    iykyk: 'iykyk',
   };
-  const aesthetic = aestheticMap[aestheticSlug] || 'Minimalist';
+  const aestheticSlug = aestheticSlugMap[matchedTag.toLowerCase()] || 'easy-does-it';
+  const aestheticNameMap: Record<string, string> = {
+    'easy-does-it': 'EASY DOES IT',
+    'touch-grass': 'TOUCH GRASS',
+    'just-a-chill-guy': 'JUST A CHILL GUY',
+    iykyk: 'IYKYK',
+  };
+  const aesthetic = aestheticNameMap[aestheticSlug] || 'EASY DOES IT';
 
   // Build brand slug from vendor
   const brandSlug = sp.vendor.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
