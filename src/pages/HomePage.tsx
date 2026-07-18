@@ -1,5 +1,6 @@
 import MetaTags from '@/components/seo/MetaTags';
 import HeroSection from '@/sections/HeroSection';
+import NewDropsSection from '@/sections/NewDropsSection';
 import AestheticPanels from '@/sections/AestheticPanels';
 import BrandShowcase from '@/sections/BrandShowcase';
 import CategoryGrid from '@/sections/CategoryGrid';
@@ -15,6 +16,7 @@ export default function HomePage() {
       />
       <main>
         <HeroSection />
+        <NewDropsSection />
         <AestheticPanels />
         <BrandShowcase />
         <CategoryGrid />
