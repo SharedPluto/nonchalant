@@ -95,18 +95,21 @@
   body::before {
     content: '';
     position: fixed;
-    inset: 0;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     background-image: url('/assets/texture-bg.jpg');
     background-size: 300px 300px;
     background-repeat: repeat;
-    opacity: 0.35;
-    mix-blend-mode: overlay;
+    opacity: 0.45;
+    mix-blend-mode: multiply;
     pointer-events: none;
-    z-index: 1;
+    z-index: 9999;
   }
 
   [data-theme="dark"] body::before {
-    opacity: 0.08;
+    opacity: 0.15;
     mix-blend-mode: soft-light;
   }
 
