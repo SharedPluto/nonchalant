@@ -84,18 +84,30 @@
   body {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     background-color: var(--nc-bg);
-    background-image: url('/assets/texture-bg.png');
-    background-size: 200px 200px;
-    background-repeat: repeat;
-    background-blend-mode: overlay;
     color: var(--nc-text);
     transition: background-color 0.5s ease, color 0.5s ease;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    position: relative;
   }
 
-  [data-theme="dark"] body {
-    background-image: none;
+  /* Paper grain texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url('/assets/texture-bg.png');
+    background-size: 250px 250px;
+    background-repeat: repeat;
+    opacity: 0.35;
+    mix-blend-mode: multiply;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  [data-theme="dark"] body::before {
+    opacity: 0.12;
+    mix-blend-mode: screen;
   }
 
   h1, h2, h3, h4, h5, h6 {
