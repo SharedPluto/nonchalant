@@ -99,7 +99,7 @@
     background-image: url('/assets/texture-bg.png');
     background-size: 250px 250px;
     background-repeat: repeat;
-    opacity: 0.35;
+    opacity: 0.6;
     mix-blend-mode: multiply;
     pointer-events: none;
     z-index: 1;
