@@ -96,18 +96,18 @@
     content: '';
     position: fixed;
     inset: 0;
-    background-image: url('/assets/texture-bg.png');
-    background-size: 250px 250px;
+    background-image: url('/assets/texture-bg.jpg');
+    background-size: 300px 300px;
     background-repeat: repeat;
-    opacity: 0.6;
-    mix-blend-mode: multiply;
+    opacity: 0.35;
+    mix-blend-mode: overlay;
     pointer-events: none;
     z-index: 1;
   }
 
   [data-theme="dark"] body::before {
-    opacity: 0.12;
-    mix-blend-mode: screen;
+    opacity: 0.08;
+    mix-blend-mode: soft-light;
   }
 
   h1, h2, h3, h4, h5, h6 {
