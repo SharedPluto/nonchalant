@@ -19,11 +19,11 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 md:gap-8">
           {/* Brand Column */}
           <div className="lg:col-span-2">
-            <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <text x="0" y="24" fontFamily="Geist, system-ui" fontWeight="700" fontSize="22">
-                <tspan fill="#8A8A8A">N</tspan><tspan fill="#6200EA">C</tspan>
-              </text>
-            </svg>
+            <img
+              src="/assets/logo.png"
+              alt="NonChalant"
+              className="h-[28px] w-auto"
+            />
             <p className="mt-3 text-sm italic text-[var(--nc-cream)]/70 font-accent">
               Style Without The Effort
             </p>

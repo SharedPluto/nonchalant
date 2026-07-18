@@ -41,24 +41,11 @@ export default function Header() {
         <div className="max-w-[1440px] mx-auto h-full flex items-center justify-between px-6 md:px-12">
           {/* Logo */}
           <Link to="/" className="flex items-center">
-            <svg
-              viewBox="0 0 320 40"
+            <img
+              src="/assets/logo.png"
+              alt="NonChalant"
               className="h-[22px] md:h-[26px] w-auto"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <text
-                x="0"
-                y="32"
-                fontFamily="Geist, system-ui, -apple-system, sans-serif"
-                fontWeight="400"
-                fontSize="34"
-                letterSpacing="-0.5"
-              >
-                <tspan fill="#8A8A8A">Non</tspan>
-                <tspan fill="#6200EA">Chalant</tspan>
-              </text>
-            </svg>
+            />
           </Link>
 
           {/* Desktop Nav */}

@@ -17,24 +17,11 @@ export default function HeroSection() {
           loaded ? 'opacity-100 scale-100' : 'opacity-0 scale-[0.98]'
         }`}
       >
-        <svg
-          viewBox="0 0 900 120"
-          className="w-[85vw] max-w-[900px] h-auto"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-        >
-          <text
-            x="0"
-            y="95"
-            fontFamily="Geist, system-ui, -apple-system, sans-serif"
-            fontWeight="400"
-            fontSize="110"
-            letterSpacing="-2"
-          >
-            <tspan fill="#8A8A8A">Non</tspan>
-            <tspan fill="#6200EA">Chalant</tspan>
-          </text>
-        </svg>
+        <img
+          src="/assets/logo.png"
+          alt="NonChalant"
+          className="w-[300px] md:w-[400px] lg:w-[500px] w-auto h-auto"
+        />
       </div>
 
       {/* Scroll Indicator */}
