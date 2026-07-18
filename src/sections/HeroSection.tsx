@@ -37,15 +37,6 @@ export default function HeroSection() {
         </svg>
       </div>
 
-      {/* Tagline */}
-      <p
-        className={`mt-6 font-accent text-base md:text-xl text-[var(--nc-black)] tracking-[0.03em] transition-all duration-[600ms] delay-[400ms] ${
-          loaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-        }`}
-      >
-        Style Without The Effort
-      </p>
-
       {/* Scroll Indicator */}
       <div
         className={`absolute bottom-10 flex flex-col items-center gap-2 transition-all duration-[400ms] delay-[1000ms] ${
