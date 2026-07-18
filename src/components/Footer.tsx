@@ -20,9 +20,9 @@ export default function Footer() {
           {/* Brand Column */}
           <div className="lg:col-span-2">
             <img
-              src="/assets/logo.png"
+              src="/assets/logo-wide.png"
               alt="NonChalant"
-              className="h-[28px] w-auto"
+              className="h-[40px] w-auto"
             />
             <p className="mt-3 text-sm italic text-[var(--nc-cream)]/70 font-accent">
               Style Without The Effort
