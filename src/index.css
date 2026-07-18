@@ -84,10 +84,18 @@
   body {
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
     background-color: var(--nc-bg);
+    background-image: url('/assets/texture-bg.png');
+    background-size: 200px 200px;
+    background-repeat: repeat;
+    background-blend-mode: overlay;
     color: var(--nc-text);
     transition: background-color 0.5s ease, color 0.5s ease;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  [data-theme="dark"] body {
+    background-image: none;
   }
 
   h1, h2, h3, h4, h5, h6 {
