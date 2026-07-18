@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { categories } from '@/data/products';
 import { useInView } from '@/hooks/useInView';
+import { ArrowRight } from 'lucide-react';
 
 export default function CategoryGrid() {
   const navigate = useNavigate();
@@ -21,35 +22,25 @@ export default function CategoryGrid() {
           </h2>
         </div>
 
-        {/* Category Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+        {/* Category List */}
+        <div className="flex flex-col">
           {categories.map((category, index) => (
-            <div
+            <button
               key={category.slug}
               onClick={() => navigate(`/shop?category=${category.slug}`)}
-              className={`group cursor-pointer bg-[var(--nc-offwhite)] aspect-square flex flex-col items-center justify-center overflow-hidden transition-all duration-500 hover:bg-[#E8E8E8] ${
-                isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
-              }`}
+              className={`group w-full flex items-center justify-between py-5 md:py-6 px-4 md:px-6 border-t border-[var(--nc-border)] bg-transparent cursor-pointer transition-all duration-400 hover:bg-[var(--nc-card-bg)] hover:pl-6 md:hover:pl-8 ${
+                isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'
+              } ${index === categories.length - 1 ? 'border-b' : ''}`}
               style={{
-                transitionDelay: `${index * 0.08}s`,
-                transitionDuration: '0.6s',
+                transitionDelay: `${index * 0.05}s`,
+                transitionDuration: '0.5s',
               }}
             >
-              {/* Category Image */}
-              <div className="w-[55%] h-[55%] flex items-center justify-center overflow-hidden">
-                <img
-                  src={category.image}
-                  alt={category.name}
-                  className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
-                  loading="lazy"
-                />
-              </div>
-
-              {/* Category Name */}
-              <h3 className="mt-4 text-base md:text-lg font-medium text-[var(--nc-text)]">
+              <span className="font-display text-xl md:text-2xl lg:text-3xl uppercase tracking-[0.05em] text-[var(--nc-text)] group-hover:text-[var(--nc-purple)] transition-colors duration-300">
                 {category.name}
-              </h3>
-            </div>
+              </span>
+              <ArrowRight className="w-5 h-5 md:w-6 md:h-6 text-[var(--nc-grey)] group-hover:text-[var(--nc-purple)] group-hover:translate-x-1 transition-all duration-300" />
+            </button>
           ))}
         </div>
       </div>

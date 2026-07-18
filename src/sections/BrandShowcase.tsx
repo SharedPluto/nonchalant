@@ -1,62 +1,11 @@
-import { useRef, useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { brands } from '@/data/products';
 import { useInView } from '@/hooks/useInView';
+import { ArrowRight } from 'lucide-react';
 
 export default function BrandShowcase() {
-  const { ref: sectionRef, isInView } = useInView();
   const navigate = useNavigate();
-  const containerRef = useRef<HTMLDivElement>(null);
-  const cursorRef = useRef<HTMLDivElement>(null);
-  const mousePos = useRef({ x: 0, y: 0 });
-  const currentPos = useRef({ x: 0, y: 0 });
-  const rafId = useRef<number | undefined>(undefined);
-
-  const [hoveredBrand, setHoveredBrand] = useState<typeof brands[0] | null>(null);
-  const [isDesktop, setIsDesktop] = useState(false);
-
-  useEffect(() => {
-    const check = () => setIsDesktop(window.innerWidth >= 1100);
-    check();
-    window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
-  }, []);
-
-  const animate = useCallback(() => {
-    const lerp = 0.15;
-    currentPos.current.x += (mousePos.current.x - currentPos.current.x) * lerp;
-    currentPos.current.y += (mousePos.current.y - currentPos.current.y) * lerp;
-
-    if (cursorRef.current) {
-      cursorRef.current.style.transform = `translate(${currentPos.current.x + 20}px, ${currentPos.current.y + 20}px)`;
-    }
-    rafId.current = requestAnimationFrame(animate);
-  }, []);
-
-  useEffect(() => {
-    if (!isDesktop) return;
-
-    const handleMouseMove = (e: MouseEvent) => {
-      const container = containerRef.current;
-      if (!container) return;
-      const rect = container.getBoundingClientRect();
-      mousePos.current = {
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top,
-      };
-    };
-
-    const container = containerRef.current;
-    if (container) {
-      container.addEventListener('mousemove', handleMouseMove);
-      rafId.current = requestAnimationFrame(animate);
-    }
-
-    return () => {
-      if (container) container.removeEventListener('mousemove', handleMouseMove);
-      if (rafId.current) cancelAnimationFrame(rafId.current);
-    };
-  }, [isDesktop, animate]);
+  const { ref: sectionRef, isInView } = useInView();
 
   return (
     <section ref={sectionRef} className="bg-[var(--nc-cream)] py-16 md:py-24">
@@ -73,56 +22,26 @@ export default function BrandShowcase() {
           </h2>
         </div>
 
-        {/* Brand Grid */}
-        <div ref={containerRef} className="relative">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
-            {brands.map((brand, index) => (
-              <div
-                key={brand.slug}
-                onClick={() => navigate(`/shop?brand=${brand.slug}`)}
-                onMouseEnter={() => setHoveredBrand(brand)}
-                onMouseLeave={() => setHoveredBrand(null)}
-                className={`relative aspect-[3/2] bg-[var(--nc-card-bg)] border border-[var(--nc-border)] flex items-center justify-center cursor-pointer overflow-hidden transition-all duration-400 hover:border-[var(--nc-purple)] ${
-                  isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
-                }`}
-                style={{
-                  transitionDelay: `${index * 0.06}s`,
-                  transitionDuration: '0.6s',
-                }}
-              >
-                <span
-                  className={`font-display text-lg md:text-xl font-medium uppercase tracking-[0.05em] transition-all duration-400 select-none ${
-                    hoveredBrand?.slug === brand.slug
-                      ? 'text-[var(--nc-text)]'
-                      : 'text-[var(--nc-grey)]'
-                  }`}
-                >
-                  {brand.logoText}
-                </span>
-              </div>
-            ))}
-          </div>
-
-          {/* Cursor-following preview */}
-          {isDesktop && (
-            <div
-              ref={cursorRef}
-              className={`absolute top-0 left-0 pointer-events-none z-50 transition-opacity duration-200 ${
-                hoveredBrand ? 'opacity-100' : 'opacity-0'
-              }`}
-              style={{ willChange: 'transform' }}
+        {/* Brand List */}
+        <div className="flex flex-col">
+          {brands.map((brand, index) => (
+            <button
+              key={brand.slug}
+              onClick={() => navigate(`/shop?brand=${brand.slug}`)}
+              className={`group w-full flex items-center justify-between py-5 md:py-6 px-4 md:px-6 border-t border-[var(--nc-border)] bg-transparent cursor-pointer transition-all duration-400 hover:bg-[var(--nc-card-bg)] hover:pl-6 md:hover:pl-8 ${
+                isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'
+              } ${index === brands.length - 1 ? 'border-b' : ''}`}
+              style={{
+                transitionDelay: `${index * 0.04}s`,
+                transitionDuration: '0.5s',
+              }}
             >
-              {hoveredBrand && (
-                <div className="w-[280px] h-[180px] overflow-hidden shadow-[0_8px_24px_rgba(0,0,0,0.15)]">
-                  <img
-                    src={hoveredBrand.previewImage}
-                    alt={hoveredBrand.name}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              )}
-            </div>
-          )}
+              <span className="font-display text-xl md:text-2xl lg:text-3xl uppercase tracking-[0.05em] text-[var(--nc-text)] group-hover:text-[var(--nc-purple)] transition-colors duration-300">
+                {brand.logoText}
+              </span>
+              <ArrowRight className="w-5 h-5 md:w-6 md:h-6 text-[var(--nc-grey)] group-hover:text-[var(--nc-purple)] group-hover:translate-x-1 transition-all duration-300" />
+            </button>
+          ))}
         </div>
       </div>
     </section>
