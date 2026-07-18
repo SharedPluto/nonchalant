@@ -20,7 +20,7 @@ export default function HeroSection() {
         <img
           src="/assets/logo.png"
           alt="NonChalant"
-          className="w-[300px] md:w-[400px] lg:w-[500px] w-auto h-auto"
+          className="w-[340px] md:w-[460px] lg:w-[580px] h-auto"
         />
       </div>
 

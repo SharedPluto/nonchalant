@@ -22,7 +22,7 @@ export default function Footer() {
             <img
               src="/assets/logo-wide.png"
               alt="NonChalant"
-              className="h-[40px] w-auto"
+              className="h-[52px] w-auto"
             />
             <p className="mt-3 text-sm italic text-[var(--nc-cream)]/70 font-accent">
               Style Without The Effort

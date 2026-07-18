@@ -44,7 +44,7 @@ export default function Header() {
             <img
               src="/assets/logo-wide.png"
               alt="NonChalant"
-              className="h-[28px] md:h-[36px] w-auto"
+              className="h-[32px] md:h-[44px] w-auto"
             />
           </Link>
 
