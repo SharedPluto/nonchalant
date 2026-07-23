@@ -27,6 +27,59 @@ export default function NewDropsSection() {
     return () => el.removeEventListener('scroll', checkScroll);
   }, [newProducts]);
 
+  // Auto-scroll effect
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el || newProducts.length === 0) return;
+
+    let animationId: number;
+    let isPaused = false;
+    const speed = 0.5; // pixels per frame (slow)
+
+    const animate = () => {
+      if (!el || isPaused) {
+        animationId = requestAnimationFrame(animate);
+        return;
+      }
+
+      el.scrollLeft += speed;
+
+      // Loop back when reaching end
+      if (el.scrollLeft >= el.scrollWidth - el.clientWidth - 1) {
+        el.scrollLeft = 0;
+      }
+
+      animationId = requestAnimationFrame(animate);
+    };
+
+    // Start after 2 seconds
+    const startTimer = setTimeout(() => {
+      animationId = requestAnimationFrame(animate);
+    }, 2000);
+
+    // Pause on hover / touch
+    const handleMouseEnter = () => { isPaused = true; };
+    const handleMouseLeave = () => { isPaused = false; };
+    const handleTouchStart = () => { isPaused = true; };
+    const handleTouchEnd = () => {
+      setTimeout(() => { isPaused = false; }, 3000);
+    };
+
+    el.addEventListener('mouseenter', handleMouseEnter);
+    el.addEventListener('mouseleave', handleMouseLeave);
+    el.addEventListener('touchstart', handleTouchStart, { passive: true });
+    el.addEventListener('touchend', handleTouchEnd);
+
+    return () => {
+      clearTimeout(startTimer);
+      cancelAnimationFrame(animationId);
+      el.removeEventListener('mouseenter', handleMouseEnter);
+      el.removeEventListener('mouseleave', handleMouseLeave);
+      el.removeEventListener('touchstart', handleTouchStart);
+      el.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [newProducts]);
+
   const scroll = (dir: 'left' | 'right') => {
     const el = scrollRef.current;
     if (!el) return;

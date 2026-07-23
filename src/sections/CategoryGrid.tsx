@@ -16,9 +16,8 @@ export default function CategoryGrid() {
             isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
           }`}
         >
-          <p className="text-eyebrow mb-3">Browse by Category</p>
           <h2 className="font-display text-3xl md:text-5xl uppercase tracking-[0.02em] text-[var(--nc-text)]">
-            What Are You Looking For?
+            Shop by Category
           </h2>
         </div>
 

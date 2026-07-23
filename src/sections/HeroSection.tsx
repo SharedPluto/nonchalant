@@ -10,7 +10,7 @@ export default function HeroSection() {
   }, []);
 
   return (
-    <section className="relative w-full h-screen flex flex-col items-center justify-center bg-[var(--nc-cream)] overflow-hidden">
+    <section className="relative w-full min-h-[50vh] md:min-h-[55vh] flex flex-col items-center justify-center bg-[var(--nc-cream)] overflow-hidden">
       {/* Logo Wordmark */}
       <div
         className={`transition-all duration-[800ms] ease-out ${

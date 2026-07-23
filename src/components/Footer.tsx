@@ -24,12 +24,10 @@ export default function Footer() {
               alt="NonChalant"
               className="h-[52px] w-auto"
             />
-            <p className="mt-3 text-sm italic text-[var(--nc-cream)]/70 font-accent">
-              Style Without The Effort
-            </p>
             <p className="mt-4 text-xs text-[var(--nc-grey)] max-w-[280px] leading-relaxed">
-              Premium streetwear marketplace. Curated drops, authenticated products, 
-              without the noise.
+              Premium Streetwear Marketplace.<br />
+              Authenticated Products.<br />
+              Curated Drops.
             </p>
 
             {/* Newsletter */}

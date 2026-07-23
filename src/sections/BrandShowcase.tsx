@@ -16,9 +16,8 @@ export default function BrandShowcase() {
             isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-5'
           }`}
         >
-          <p className="text-eyebrow mb-3">The Brands We Carry</p>
           <h2 className="font-display text-3xl md:text-5xl uppercase tracking-[0.02em] text-[var(--nc-text)]">
-            By Brand
+            Shop by Brand
           </h2>
         </div>
 

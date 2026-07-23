@@ -96,7 +96,7 @@ export default function AestheticPanels() {
               {/* Vertical subtitle on the left edge */}
               <div className="absolute left-4 top-0 bottom-0 flex items-center z-10">
                 <span
-                  className="text-white/50 text-[10px] uppercase tracking-[0.2em] whitespace-nowrap"
+                  className="text-white/90 text-[11px] font-medium uppercase tracking-[0.2em] whitespace-nowrap"
                   style={{
                     writingMode: 'vertical-rl',
                     textOrientation: 'mixed',
@@ -147,7 +147,7 @@ export default function AestheticPanels() {
             {/* Vertical subtitle on left */}
             <div className="absolute left-4 top-0 bottom-0 flex items-center z-10">
               <span
-                className="text-white/50 text-[10px] uppercase tracking-[0.2em] whitespace-nowrap"
+                className="text-white/90 text-[11px] font-medium uppercase tracking-[0.2em] whitespace-nowrap"
                 style={{
                   writingMode: 'vertical-rl',
                   textOrientation: 'mixed',

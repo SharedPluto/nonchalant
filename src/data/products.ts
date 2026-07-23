@@ -3,7 +3,8 @@ import type { Product, Brand, Category, Aesthetic } from '@/types';
 export const aesthetics: Aesthetic[] = [
   { name: 'IYKYK', slug: 'iykyk', image: '/assets/aesthetic-iykyk.jpg', subtitle: 'All About The Hype' },
   { name: 'EASY DOES IT', slug: 'easy-does-it', image: '/assets/aesthetic-easy-does-it.jpg', subtitle: 'The Minimalist' },
-  { name: 'TOUCH GRASS', slug: 'touch-grass', image: '/assets/aesthetic-touch-grass.jpg', subtitle: 'Athleisure / The Outdoors' },
+  { name: 'TOUCH GRASS', slug: 'touch-grass', image: '/assets/aesthetic-touch-grass.jpg', subtitle: 'The Outdoors' },
+  { name: 'ATHLEISURE', slug: 'athleisure', image: '/assets/aesthetic-skater.jpg', subtitle: 'Performance Meets Street' },
   { name: 'JUST A CHILL GUY', slug: 'just-a-chill-guy', image: '/assets/aesthetic-just-a-chill-guy.jpg', subtitle: 'The Comfort Zone' },
 ];
 
