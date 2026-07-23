@@ -27,6 +27,9 @@ export default function AestheticPanels() {
       const viewportWidth = container.offsetWidth;
       const scrollDistance = totalWidth - viewportWidth;
 
+      // Only animate if panels overflow (more than 5 panels or narrow viewport)
+      if (scrollDistance <= 0) return;
+
       const tween = gsap.to(panels, {
         x: -scrollDistance,
         ease: 'none',
@@ -60,7 +63,7 @@ export default function AestheticPanels() {
 
   return (
     <section ref={sectionRef} className="relative bg-[var(--nc-black)]">
-      {/* Desktop: Scroll-driven horizontal */}
+      {/* Desktop: Horizontal grid — all 5 fit on screen */}
       <div ref={containerRef} className="hidden md:block h-screen overflow-hidden">
         <div
           ref={panelsRef}
@@ -71,7 +74,7 @@ export default function AestheticPanels() {
             <div
               key={aesthetic.slug}
               className="relative h-screen flex-shrink-0 overflow-hidden cursor-pointer group"
-              style={{ width: '25vw' }}
+              style={{ width: '20vw' }}
               onClick={() => handlePanelClick(aesthetic.slug)}
               onMouseEnter={() => setHoveredIndex(index)}
               onMouseLeave={() => setHoveredIndex(null)}
@@ -109,7 +112,7 @@ export default function AestheticPanels() {
 
               {/* Main title at top */}
               <div className="absolute top-0 left-0 right-0 p-8">
-                <h3 className="text-white font-display text-3xl lg:text-4xl uppercase tracking-[0.02em] leading-tight">
+                <h3 className="text-white font-display text-2xl lg:text-3xl uppercase tracking-[0.02em] leading-tight">
                   {aesthetic.name}
                 </h3>
               </div>

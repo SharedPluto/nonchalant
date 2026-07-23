@@ -10,7 +10,7 @@ export default function HeroSection() {
   }, []);
 
   return (
-    <section className="relative w-full min-h-[50vh] md:min-h-[55vh] flex flex-col items-center justify-center bg-[var(--nc-cream)] overflow-hidden">
+    <section className="relative w-full min-h-[35vh] md:min-h-[40vh] flex flex-col items-center justify-center bg-[var(--nc-cream)] overflow-hidden">
       {/* Logo Wordmark */}
       <div
         className={`transition-all duration-[800ms] ease-out ${
@@ -20,20 +20,20 @@ export default function HeroSection() {
         <img
           src="/assets/logo.png"
           alt="NonChalant"
-          className="w-[340px] md:w-[460px] lg:w-[580px] h-auto"
+          className="w-[280px] md:w-[380px] lg:w-[460px] h-auto"
         />
       </div>
 
       {/* Scroll Indicator */}
       <div
-        className={`absolute bottom-10 flex flex-col items-center gap-2 transition-all duration-[400ms] delay-[1000ms] ${
+        className={`absolute bottom-4 flex flex-col items-center gap-1 transition-all duration-[400ms] delay-[1000ms] ${
           loaded ? 'opacity-100' : 'opacity-0'
         }`}
       >
         <span className="text-[10px] uppercase tracking-[0.1em] text-[var(--nc-text-dimmed)]">
           Scroll to Explore
         </span>
-        <ChevronDown size={16} className="text-[var(--nc-text-dimmed)] animate-bounce-scroll" />
+        <ChevronDown size={14} className="text-[var(--nc-text-dimmed)] animate-bounce-scroll" />
       </div>
     </section>
   );
