@@ -18,7 +18,7 @@ const faqs = [
   },
   {
     q: 'How do I find my size?',
-    a: 'Check our Size Guide page for detailed measurements and international size conversions. Different brands may fit differently — we include brand-specific sizing notes on each product page.',
+    a: 'Different brands may fit differently — we include brand-specific sizing notes on each product page. If you are unsure, feel free to contact us and we will help you find your fit.',
   },
   {
     q: 'Do you ship internationally?',
@@ -26,7 +26,7 @@ const faqs = [
   },
   {
     q: 'Can I cancel or modify my order?',
-    a: 'Orders can be cancelled or modified within 2 hours of placing them. Contact us immediately at hello@nonchalant.co with your order number. Once an order enters processing, we cannot guarantee changes.',
+    a: 'Orders can be cancelled or modified within 2 hours of placing them. Contact us immediately at support@nonchalantstore.com with your order number. Once an order enters processing, we cannot guarantee changes.',
   },
   {
     q: 'What payment methods do you accept?',
@@ -34,7 +34,7 @@ const faqs = [
   },
   {
     q: 'How do I track my order?',
-    a: 'Once your order ships, you will receive a tracking number via email. You can also contact us at hello@nonchalant.co with your order number for tracking assistance.',
+    a: 'Once your order ships, you will receive a tracking number via email. You can also contact us at support@nonchalantstore.com with your order number for tracking assistance.',
   },
   {
     q: 'Do you offer student or military discounts?',
@@ -42,7 +42,7 @@ const faqs = [
   },
   {
     q: 'How can I contact customer service?',
-    a: 'Email us at hello@nonchalant.co or use the contact form on our About page. We aim to respond to all inquiries within 24 hours during business days.',
+    a: 'Email us at support@nonchalantstore.com or use the contact form on our About page. We aim to respond to all inquiries within 24 hours during business days.',
   },
 ];
 
@@ -69,8 +69,8 @@ export default function FAQPage() {
           </h1>
           <p className="text-[var(--nc-grey)] mb-12">
             Everything you need to know. Cannot find what you are looking for? Contact us at{' '}
-            <a href="mailto:hello@nonchalant.co" className="text-[var(--nc-purple)] hover:underline">
-              hello@nonchalant.co
+            <a href="mailto:support@nonchalantstore.com" className="text-[var(--nc-purple)] hover:underline">
+              support@nonchalantstore.com
             </a>
           </p>
 

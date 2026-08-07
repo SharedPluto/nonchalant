@@ -86,7 +86,6 @@ export default function Footer() {
             </h4>
             <ul className="space-y-3">
               {[
-                { label: 'Size Guide', to: '/size-guide' },
                 { label: 'Shipping', to: '/shipping' },
                 { label: 'Returns', to: '/returns' },
                 { label: 'FAQ', to: '/faq' },

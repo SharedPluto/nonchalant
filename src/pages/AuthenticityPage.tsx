@@ -132,8 +132,8 @@ export default function AuthenticityPage() {
             </p>
             <p className="text-sm text-[var(--nc-grey)]">
               To report an authenticity concern, contact us immediately at{' '}
-              <a href="mailto:hello@nonchalant.co" className="text-[var(--nc-purple)] hover:underline">
-                hello@nonchalant.co
+              <a href="mailto:support@nonchalantstore.com" className="text-[var(--nc-purple)] hover:underline">
+                support@nonchalantstore.com
               </a>{' '}
               with your order number and detailed photos of the item in question.
             </p>

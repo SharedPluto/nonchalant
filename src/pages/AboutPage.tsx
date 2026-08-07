@@ -158,16 +158,12 @@ export default function AboutPage() {
               <div>
                 <div className="space-y-3">
                   <a
-                    href="mailto:hello@nonchalant.co"
+                    href="mailto:support@nonchalantstore.com"
                     className="block text-base hover:text-[var(--nc-purple)] transition-colors"
                   >
-                    hello@nonchalant.co
+                    support@nonchalantstore.com
                   </a>
-                  <p className="text-base">+1 (555) 123-4567</p>
-                  <p className="text-sm text-[var(--nc-grey)]">
-                    123 Streetwear Ave<br />
-                    New York, NY 10001
-                  </p>
+                  <p className="text-base">+65 94898482</p>
                 </div>
 
                 {/* Social */}

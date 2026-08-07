@@ -122,8 +122,8 @@ export default function TermsPage() {
               <h2 className="font-display text-lg uppercase tracking-[0.02em] mb-3">Contact</h2>
               <p className="text-[var(--nc-grey)]">
                 Questions about these terms? Contact us at{' '}
-                <a href="mailto:hello@nonchalant.co" className="text-[var(--nc-purple)] hover:underline">
-                  hello@nonchalant.co
+                <a href="mailto:support@nonchalantstore.com" className="text-[var(--nc-purple)] hover:underline">
+                  support@nonchalantstore.com
                 </a>
               </p>
             </section>

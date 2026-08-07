@@ -79,7 +79,7 @@ export default function ReturnsPage() {
             <div className="bg-[var(--nc-offwhite)] p-6 md:p-8">
               <ol className="space-y-6">
                 {[
-                  'Contact us at hello@nonchalant.co with your order number and reason for return.',
+                  'Contact us at support@nonchalantstore.com with your order number and reason for return.',
                   'We will send you a prepaid return label within 24 hours.',
                   'Pack the item securely in the original packaging with all tags attached.',
                   'Drop off the package at any authorized shipping location.',

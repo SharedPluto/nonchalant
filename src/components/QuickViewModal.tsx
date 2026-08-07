@@ -300,13 +300,6 @@ export default function QuickViewModal({ productHandle, onClose }: QuickViewModa
                     <span className="text-[11px] uppercase tracking-wider text-[var(--nc-grey)]">
                       Select Size
                     </span>
-                    <Link
-                      to="/size-guide"
-                      onClick={onClose}
-                      className="text-[10px] uppercase tracking-wider text-[var(--nc-purple)] hover:underline"
-                    >
-                      Size Guide
-                    </Link>
                   </div>
                   <div className="grid grid-cols-5 gap-2">
                     {availableSizes.map((size) => {
