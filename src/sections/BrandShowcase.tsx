@@ -1,11 +1,26 @@
+import { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { brands } from '@/data/products';
+import { useShopifyProducts } from '@/hooks/useShopifyProduct';
 import { useInView } from '@/hooks/useInView';
 import { ArrowRight } from 'lucide-react';
 
 export default function BrandShowcase() {
   const navigate = useNavigate();
   const { ref: sectionRef, isInView } = useInView();
+  const { products } = useShopifyProducts(50);
+
+  // Only show brands that currently have in-stock products
+  const inStockBrands = useMemo(() => {
+    const seen = new Map<string, string>();
+    products.forEach(p => {
+      if (p.inStock && !seen.has(p.brandSlug)) {
+        seen.set(p.brandSlug, p.brand);
+      }
+    });
+    return [...seen.entries()]
+      .map(([slug, name]) => ({ slug, logoText: name.toUpperCase() }))
+      .sort((a, b) => a.logoText.localeCompare(b.logoText));
+  }, [products]);
 
   return (
     <section ref={sectionRef} className="bg-[var(--nc-cream)] py-16 md:py-24">
@@ -23,13 +38,13 @@ export default function BrandShowcase() {
 
         {/* Brand List */}
         <div className="flex flex-col">
-          {brands.map((brand, index) => (
+          {inStockBrands.map((brand, index) => (
             <button
               key={brand.slug}
               onClick={() => navigate(`/shop?brand=${brand.slug}`)}
               className={`group w-full flex items-center justify-between py-5 md:py-6 px-4 md:px-6 border-t border-[var(--nc-border)] bg-transparent cursor-pointer transition-all duration-400 hover:bg-[var(--nc-card-bg)] hover:pl-6 md:hover:pl-8 ${
                 isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-3'
-              } ${index === brands.length - 1 ? 'border-b' : ''}`}
+              } ${index === inStockBrands.length - 1 ? 'border-b' : ''}`}
               style={{
                 transitionDelay: `${index * 0.04}s`,
                 transitionDuration: '0.5s',

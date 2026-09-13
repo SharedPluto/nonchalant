@@ -103,14 +103,14 @@
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    opacity: 0.55;
+    opacity: 0.18;
     mix-blend-mode: multiply;
     pointer-events: none;
     z-index: 9999;
   }
 
   [data-theme="dark"] body::before {
-    opacity: 0.2;
+    opacity: 0.1;
     mix-blend-mode: soft-light;
   }
 

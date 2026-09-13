@@ -4,6 +4,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import CartDrawer from '@/components/CartDrawer';
 import ScrollProgress from '@/components/ScrollProgress';
+import ScrollToTop from '@/components/ScrollToTop';
 import SitemapGenerator from '@/components/seo/SitemapGenerator';
 import HomePage from '@/pages/HomePage';
 import ShopPage from '@/pages/ShopPage';
@@ -27,6 +28,7 @@ function App() {
       <HashRouter>
         <ScrollProgress />
         <SitemapGenerator />
+        <ScrollToTop />
         <Header />
         <CartDrawer />
         <WaitlistModal />
