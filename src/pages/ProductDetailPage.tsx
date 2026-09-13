@@ -69,6 +69,33 @@ function getVariantId(shopifyVariants: any[], size: string): string | null {
   return variant?.node?.id || null;
 }
 
+interface SizeInfo {
+  price: number | null;
+  compareAt: number | null;
+  inStock: boolean;
+  qty: number | null;
+}
+
+/** Per-size pricing / stock — reads Shopify variant data, falls back to flat product data */
+function getSizeInfo(shopifyVariants: any[], size: string, fallbackPrice: number, fallbackInStock: boolean): SizeInfo {
+  const variant = shopifyVariants.find((v: any) => {
+    const sizeOpt = v.node.selectedOptions.find((o: any) => o.name.toLowerCase() === 'size');
+    return sizeOpt?.value === size;
+  });
+  if (!variant) {
+    // No variant data for this size: if Shopify variants exist at all, treat as unavailable; else static fallback
+    return { price: fallbackPrice, compareAt: null, inStock: shopifyVariants.length > 0 ? false : fallbackInStock, qty: null };
+  }
+  const price = parseFloat(variant.node.price.amount);
+  const compareAt = variant.node.compareAtPrice?.amount ? parseFloat(variant.node.compareAtPrice.amount) : null;
+  return {
+    price: isNaN(price) ? fallbackPrice : price,
+    compareAt: compareAt && !isNaN(compareAt) && compareAt > price ? compareAt : null,
+    inStock: variant.node.availableForSale,
+    qty: typeof variant.node.quantityAvailable === 'number' ? variant.node.quantityAvailable : null,
+  };
+}
+
 export default function ProductDetailPage() {
   const { handle } = useParams<{ handle: string }>();
   const navigate = useNavigate();
@@ -88,6 +115,7 @@ export default function ProductDetailPage() {
   const [adding, setAdding] = useState(false);
   const [added, setAdded] = useState(false);
   const [sizeError, setSizeError] = useState(false);
+  const [priceFlicker, setPriceFlicker] = useState(false);
   const [accordionOpen, setAccordionOpen] = useState<string | null>(null);
 
   // Fetch related products from Shopify
@@ -151,6 +179,11 @@ export default function ProductDetailPage() {
   const handleSizeSelect = useCallback((size: string) => {
     setSelectedSize(size);
     setSizeError(false);
+    setQuantity(1);
+
+    // Flicker the price readout
+    setPriceFlicker(true);
+    setTimeout(() => setPriceFlicker(false), 150);
 
     if (shopifyVariants.length > 0) {
       // Check if this specific size variant is available
@@ -203,7 +236,8 @@ export default function ProductDetailPage() {
   const doAddToCart = async (vid: string) => {
     if (!product || !selectedSize) return;
     setAdding(true);
-    await addItem(product, selectedSize, vid);
+    const sizePrice = getSizeInfo(shopifyVariants, selectedSize, product.price, product.inStock).price;
+    await addItem(product, selectedSize, vid, sizePrice ?? undefined);
     setAdding(false);
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
@@ -256,6 +290,16 @@ export default function ProductDetailPage() {
   const anyInStock = shopifyVariants.length > 0
     ? shopifyVariants.some((v: any) => v.node.availableForSale)
     : product.inStock;
+
+  // ===== Per-size pricing (Ticket view) =====
+  const sizeInfos = product.sizes.map(s => ({ size: s, ...getSizeInfo(shopifyVariants, s, product.price, product.inStock) }));
+  const liveSizes = sizeInfos.filter(si => si.inStock && si.price != null);
+  const lowestPrice = liveSizes.length ? Math.min(...liveSizes.map(si => si.price!)) : product.price;
+  const highestPrice = sizeInfos.length ? Math.max(...sizeInfos.map(si => si.price ?? 0)) : product.price;
+  const hasVariablePricing = new Set(sizeInfos.map(si => si.price)).size > 1;
+  const selectedInfo = selectedSize ? sizeInfos.find(si => si.size === selectedSize) ?? null : null;
+  const qtyMax = Math.min(5, selectedInfo?.qty && selectedInfo.qty > 0 ? selectedInfo.qty : 5);
+  const fmtPrice = (n: number) => `$${Number.isInteger(n) ? n : n.toFixed(2)}`;
 
   return (
     <>
@@ -340,20 +384,61 @@ export default function ProductDetailPage() {
                 {product.name}
               </h1>
 
-              <div className="flex items-center gap-3 mt-4">
-                <span className="text-xl md:text-2xl font-medium">
-                  ${product.price}
+              {/* Ticket price readout — shows selected size price, or the lowest ("from") price */}
+              <div className="flex items-baseline gap-3 mt-4 flex-wrap">
+                <span
+                  className={`font-display text-4xl md:text-5xl font-bold tracking-tight tabular-nums transition-opacity duration-150 ${
+                    priceFlicker ? 'opacity-25' : 'opacity-100'
+                  }`}
+                >
+                  {selectedInfo
+                    ? selectedInfo.inStock && selectedInfo.price != null
+                      ? fmtPrice(selectedInfo.price)
+                      : '—'
+                    : fmtPrice(lowestPrice)}
                 </span>
-                {product.originalPrice && (
+                {selectedInfo?.compareAt && (
+                  <span className="text-lg text-[var(--nc-grey)] line-through tabular-nums">
+                    {fmtPrice(selectedInfo.compareAt)}
+                  </span>
+                )}
+                {!selectedInfo && product.originalPrice && (
                   <>
-                    <span className="text-lg text-[var(--nc-grey)] line-through">
-                      ${product.originalPrice}
+                    <span className="text-lg text-[var(--nc-grey)] line-through tabular-nums">
+                      {fmtPrice(product.originalPrice)}
                     </span>
                     <span className="text-sm text-[var(--nc-red)]">
-                      Save ${product.originalPrice - product.price}
+                      Save {fmtPrice(product.originalPrice - product.price)}
                     </span>
                   </>
                 )}
+                <span className="text-sm text-[var(--nc-grey)]">
+                  {selectedInfo
+                    ? selectedInfo.inStock
+                      ? `for US ${selectedSize}`
+                      : `US ${selectedSize} is sold out`
+                    : hasVariablePricing
+                      ? 'from — select your size'
+                      : ''}
+                </span>
+              </div>
+
+              {/* Market stats strip */}
+              <div className="grid grid-cols-3 border border-[var(--nc-border)] bg-[var(--nc-card-bg)] mt-5">
+                <div className="py-3 px-4 border-r border-[var(--nc-border)]">
+                  <div className="text-[10px] uppercase tracking-[0.1em] text-[var(--nc-grey)]">Lowest</div>
+                  <div className="text-base font-semibold mt-1 tabular-nums">
+                    <span className="bg-[var(--nc-lime)] text-[var(--nc-black)] px-1.5">{fmtPrice(lowestPrice)}</span>
+                  </div>
+                </div>
+                <div className="py-3 px-4 border-r border-[var(--nc-border)]">
+                  <div className="text-[10px] uppercase tracking-[0.1em] text-[var(--nc-grey)]">Highest</div>
+                  <div className="text-base font-semibold mt-1 tabular-nums">{fmtPrice(highestPrice)}</div>
+                </div>
+                <div className="py-3 px-4">
+                  <div className="text-[10px] uppercase tracking-[0.1em] text-[var(--nc-grey)]">Sizes Live</div>
+                  <div className="text-base font-semibold mt-1 tabular-nums">{liveSizes.length} / {sizeInfos.length}</div>
+                </div>
               </div>
 
               <div className="flex flex-wrap gap-2 mt-4">
@@ -394,27 +479,40 @@ export default function ProductDetailPage() {
                   </span>
                 </div>
                 <div ref={sizeRef} className="flex flex-wrap gap-2">
-                  {product.sizes.map(size => {
-                    // Check per-variant stock
-                    const sizeInStock = shopifyVariants.length > 0
-                      ? isVariantAvailable(shopifyVariants, size)
-                      : product.inStock;
-
+                  {sizeInfos.map(si => {
+                    const isSelected = selectedSize === si.size;
                     return (
                       <button
-                        key={size}
-                        onClick={() => handleSizeSelect(size)}
-                        className={`relative w-12 h-10 border text-sm transition-all ${
-                          selectedSize === size
-                            ? sizeInStock
-                              ? 'bg-[var(--nc-purple)] border-[var(--nc-purple)] text-white'
-                              : 'bg-[var(--nc-text)] border-[var(--nc-text)] text-[var(--nc-bg)]'
-                            : sizeInStock
-                              ? 'border-[var(--nc-border)] text-[var(--nc-text)] hover:border-[var(--nc-purple)]'
-                              : 'border-[var(--nc-border)] text-[var(--nc-grey)] hover:border-[var(--nc-text)]'
+                        key={si.size}
+                        onClick={() => handleSizeSelect(si.size)}
+                        className={`relative min-w-[60px] px-2 py-2 border text-center transition-all ${
+                          isSelected
+                            ? 'bg-[var(--nc-text)] border-[var(--nc-text)]'
+                            : si.inStock
+                              ? 'border-[var(--nc-border)] hover:border-[var(--nc-purple)]'
+                              : 'border-[var(--nc-border)] bg-[var(--nc-offwhite)] hover:border-[var(--nc-text)]'
                         }`}
                       >
-                        {size}
+                        <span
+                          className={`block text-sm font-semibold tabular-nums ${
+                            isSelected
+                              ? 'text-[var(--nc-bg)]'
+                              : si.inStock
+                                ? 'text-[var(--nc-text)]'
+                                : 'text-[var(--nc-grey)]'
+                          }`}
+                        >
+                          {si.size}
+                        </span>
+                        <span
+                          className={`block text-[10px] mt-0.5 tabular-nums ${
+                            isSelected
+                              ? 'text-[var(--nc-lime)]'
+                              : 'text-[var(--nc-grey)]'
+                          } ${!si.inStock && !isSelected ? 'line-through' : ''}`}
+                        >
+                          {si.price != null ? fmtPrice(si.price) : '—'}
+                        </span>
                       </button>
                     );
                   })}
@@ -425,6 +523,14 @@ export default function ProductDetailPage() {
                 {selectedSize && !selectedSizeInStock && (
                   <p className="text-[var(--nc-grey)] text-xs mt-2">
                     Size {selectedSize} is out of stock. Click "Notify Me" to get alerted when it's back.
+                  </p>
+                )}
+                {selectedInfo?.inStock && selectedInfo.qty != null && selectedInfo.qty > 0 && selectedInfo.qty <= 3 && (
+                  <p className="text-xs mt-2 flex items-center gap-2 text-[var(--nc-grey)]">
+                    <span className="inline-block w-[7px] h-[7px] rounded-full bg-[var(--nc-red)] animate-pulse" />
+                    {selectedInfo.qty === 1
+                      ? 'Only 1 pair in this size — individually sourced'
+                      : `Only ${selectedInfo.qty} pairs in this size`}
                   </p>
                 )}
               </div>
@@ -447,9 +553,9 @@ export default function ProductDetailPage() {
                       {quantity}
                     </div>
                     <button
-                      onClick={() => setQuantity(Math.min(5, quantity + 1))}
+                      onClick={() => setQuantity(Math.min(qtyMax, quantity + 1))}
                       className="w-10 h-10 border border-[var(--nc-border)] flex items-center justify-center hover:border-[var(--nc-purple)] transition-colors disabled:opacity-50"
-                      disabled={quantity >= 5}
+                      disabled={quantity >= qtyMax}
                     >
                       +
                     </button>
@@ -492,6 +598,8 @@ export default function ProductDetailPage() {
                       <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     ) : added ? (
                       'ADDED ✓'
+                    ) : selectedInfo?.price != null ? (
+                      `ADD TO BAG — ${fmtPrice(selectedInfo.price)} · US ${selectedSize}`
                     ) : (
                       'ADD TO BAG'
                     )}

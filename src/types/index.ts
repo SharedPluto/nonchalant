@@ -23,6 +23,8 @@ export interface CartItem {
   product: Product;
   size: string;
   quantity: number;
+  /** Per-variant (per-size) price captured at add time; falls back to product.price */
+  price?: number;
 }
 
 export interface Brand {

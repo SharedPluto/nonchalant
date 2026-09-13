@@ -112,7 +112,7 @@ export default function CartDrawer() {
                     >
                       <X size={14} />
                     </button>
-                    <p className="text-sm font-medium">${item.product.price * item.quantity}</p>
+                    <p className="text-sm font-medium">${(item.price ?? item.product.price) * item.quantity}</p>
                   </div>
                 </div>
               ))}

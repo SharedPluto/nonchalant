@@ -9,6 +9,8 @@ interface ShopifyCartItem {
   quantity: number;
   variantId: string;
   lineId?: string;
+  /** Per-variant (per-size) price captured at add time */
+  price?: number;
 }
 
 interface ShopifyCartState {
@@ -19,7 +21,7 @@ interface ShopifyCartState {
   isLoading: boolean;
   lastAdded: string | null;
 
-  addItem: (product: Product, size: string, variantId: string) => Promise<void>;
+  addItem: (product: Product, size: string, variantId: string, price?: number) => Promise<void>;
   removeItem: (productId: string) => Promise<void>;
   updateQuantity: (productId: string, quantity: number) => Promise<void>;
   toggleOpen: () => void;
@@ -42,7 +44,7 @@ export const useShopifyCartStore = create<ShopifyCartState>()(
       isLoading: false,
       lastAdded: null,
 
-      addItem: async (product, size, variantId) => {
+      addItem: async (product, size, variantId, price) => {
         const { items, cartId } = get();
         set({ isLoading: true });
 
@@ -120,7 +122,7 @@ export const useShopifyCartStore = create<ShopifyCartState>()(
             }
 
             set({
-              items: [...items, { product, size, quantity: 1, variantId, lineId }],
+              items: [...items, { product, size, quantity: 1, variantId, lineId, price }],
               cartId: newCartId,
               checkoutUrl: checkoutUrl || get().checkoutUrl,
               lastAdded: product.id,
@@ -198,7 +200,7 @@ export const useShopifyCartStore = create<ShopifyCartState>()(
       clearCart: () => set({ items: [], cartId: null, checkoutUrl: null }),
 
       itemCount: () => get().items.reduce((sum, item) => sum + item.quantity, 0),
-      subtotal: () => get().items.reduce((sum, item) => sum + item.product.price * item.quantity, 0),
+      subtotal: () => get().items.reduce((sum, item) => sum + (item.price ?? item.product.price) * item.quantity, 0),
 
       syncWithShopify: async () => {
         const { cartId } = get();
