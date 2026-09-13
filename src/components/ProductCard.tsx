@@ -49,7 +49,7 @@ export default function ProductCard({ product, index = 0, onQuickView }: Product
         <img
           src={product.images[0]}
           alt={product.name}
-          className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 ${
+          className={`absolute inset-0 w-full h-full object-contain transition-all duration-500 ${
             isHovered && hasSecondImage ? 'opacity-0' : 'opacity-100'
           } ${isHovered ? 'scale-[1.03]' : 'scale-100'}`}
           loading="lazy"
@@ -61,7 +61,7 @@ export default function ProductCard({ product, index = 0, onQuickView }: Product
           <img
             src={product.images[1]}
             alt={`${product.name} — alternate view`}
-            className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 ${
+            className={`absolute inset-0 w-full h-full object-contain transition-all duration-500 ${
               isHovered ? 'opacity-100 scale-[1.03]' : 'opacity-0 scale-100'
             }`}
             loading="lazy"

@@ -197,7 +197,7 @@ export default function NewDropsSection() {
                 <img
                   src={product.images[0]}
                   alt={product.name}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+                  className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-[1.03]"
                   loading="lazy"
                 />
 

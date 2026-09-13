@@ -221,7 +221,7 @@ export default function QuickViewModal({ productHandle, onClose }: QuickViewModa
                 <img
                   src={product.images[selectedImage] || product.images[0]}
                   alt={product.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain"
                 />
 
                 {/* Image thumbnails (if multiple) */}
@@ -237,7 +237,7 @@ export default function QuickViewModal({ productHandle, onClose }: QuickViewModa
                             : 'border-white/80 hover:border-white'
                         }`}
                       >
-                        <img src={img} alt="" className="w-full h-full object-cover" />
+                        <img src={img} alt="" className="w-full h-full object-contain" />
                       </button>
                     ))}
                   </div>

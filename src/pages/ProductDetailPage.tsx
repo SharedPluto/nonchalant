@@ -342,7 +342,7 @@ export default function ProductDetailPage() {
                 <img
                   src={product.images[mainImage]}
                   alt={product.name}
-                  className="w-full h-full object-cover transition-opacity duration-300"
+                  className="w-full h-full object-contain transition-opacity duration-300"
                 />
                 {/* Sold out overlay */}
                 {!anyInStock && (
@@ -364,7 +364,7 @@ export default function ProductDetailPage() {
                         idx === mainImage ? 'border-[var(--nc-purple)]' : 'border-transparent'
                       }`}
                     >
-                      <img src={img} alt="" className="w-full h-full object-cover" />
+                      <img src={img} alt="" className="w-full h-full object-contain" />
                     </button>
                   ))}
                 </div>
