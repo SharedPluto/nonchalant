@@ -67,7 +67,7 @@ export default function CartDrawer() {
               {items.map((item) => (
                 <div key={`${item.product.id}-${item.size}`} className="flex gap-4">
                   {/* Image */}
-                  <div className="w-20 h-24 bg-[var(--nc-offwhite)] flex-shrink-0 overflow-hidden">
+                  <div className="w-20 h-24 flex-shrink-0 overflow-hidden">
                     <img
                       src={item.product.images[0]}
                       alt={item.product.name}

@@ -44,7 +44,7 @@ export default function ProductCard({ product, index = 0, onQuickView }: Product
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Image — clean, no borders, no background card */}
-      <div className="relative aspect-[3/4] bg-[var(--nc-offwhite)] overflow-hidden mb-2.5">
+      <div className="relative aspect-[3/4] overflow-hidden mb-2.5">
         {/* First image — default */}
         <img
           src={product.images[0]}

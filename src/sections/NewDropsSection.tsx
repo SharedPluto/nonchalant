@@ -193,7 +193,7 @@ export default function NewDropsSection() {
               className="group flex-shrink-0 w-[220px] md:w-[280px] block"
             >
               {/* Image */}
-              <div className="relative aspect-[3/4] bg-[var(--nc-offwhite)] overflow-hidden mb-3">
+              <div className="relative aspect-[3/4] overflow-hidden mb-3">
                 <img
                   src={product.images[0]}
                   alt={product.name}

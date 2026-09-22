@@ -215,7 +215,7 @@ export default function QuickViewModal({ productHandle, onClose }: QuickViewModa
         ) : (
           <div className="flex flex-col md:flex-row">
             {/* Image section */}
-            <div className="w-full md:w-1/2 bg-[var(--nc-offwhite)]">
+            <div className="w-full md:w-1/2">
               {/* Main image */}
               <div className="relative aspect-[3/4] md:aspect-auto md:h-full">
                 <img

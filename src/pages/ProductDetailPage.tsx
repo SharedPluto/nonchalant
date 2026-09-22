@@ -336,7 +336,7 @@ export default function ProductDetailPage() {
             {/* Image Gallery */}
             <div>
               <div
-                className="relative aspect-[4/5] bg-[var(--nc-offwhite)] overflow-hidden cursor-pointer"
+                className="relative aspect-[4/5] overflow-hidden cursor-pointer"
                 onClick={() => setLightboxOpen(true)}
               >
                 <img
