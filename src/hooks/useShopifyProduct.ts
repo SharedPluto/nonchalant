@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getShopifyClient } from '@/lib/shopify/client';
-import { mapShopifyProductToProduct, getVariantIdForSize } from '@/lib/shopify/mapper';
+import { mapShopifyProductToProduct, getVariantIdForSize, type ShopifyProduct } from '@/lib/shopify/mapper';
 import type { Product } from '@/types';
 
 const client = getShopifyClient();
@@ -108,8 +108,12 @@ export function useShopifyProduct(handle: string) {
 
 // Fetch all products
 const PRODUCTS_QUERY = `
-  query GetProducts($first: Int!) {
-    products(first: $first) {
+  query GetProducts($first: Int!, $after: String) {
+    products(first: $first, after: $after) {
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
       edges {
         node {
           id
@@ -148,28 +152,80 @@ const PRODUCTS_QUERY = `
   }
 `;
 
+type ProductsQueryResult = {
+  data?: {
+    products?: {
+      edges: Array<{ node: ShopifyProduct }>;
+      pageInfo?: {
+        hasNextPage: boolean;
+        endCursor: string | null;
+      };
+    };
+  };
+};
+
 export function useShopifyProducts(first: number = 50) {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    let active = true;
+
     async function fetch() {
       setLoading(true);
+      setError(null);
+
       try {
-        const result = await client.request(PRODUCTS_QUERY, { variables: { first } });
-        const edges = result.data?.products?.edges || [];
-        const mapped = edges.map((e: any) => mapShopifyProductToProduct(e.node));
-        setProducts(mapped);
+        const mapped: Product[] = [];
+        const maxPages = 20;
+        let after: string | null = null;
+        let hasNextPage = true;
+        let pageCount = 0;
+
+        while (hasNextPage && pageCount < maxPages) {
+          const result = await client.request(PRODUCTS_QUERY, { variables: { first, after } }) as ProductsQueryResult;
+          const connection = result.data?.products;
+
+          if (!connection) {
+            throw new Error('Shopify returned no product data');
+          }
+
+          const edges = connection.edges || [];
+          mapped.push(...edges.map((e) => mapShopifyProductToProduct(e.node)));
+
+          hasNextPage = Boolean(connection.pageInfo?.hasNextPage);
+          after = connection.pageInfo?.endCursor || null;
+          pageCount += 1;
+
+          if (hasNextPage && !after) {
+            throw new Error('Shopify pagination did not return a cursor');
+          }
+        }
+
+        if (hasNextPage) {
+          throw new Error('Shopify product pagination exceeded the safety limit');
+        }
+
+        if (active) {
+          setProducts(mapped);
+        }
       } catch (err) {
-        setError('Failed to load products');
-        console.error(err);
+        if (active) {
+          setError('Failed to load products');
+          console.error(err);
+        }
       } finally {
-        setLoading(false);
+        if (active) {
+          setLoading(false);
+        }
       }
     }
 
     fetch();
+    return () => {
+      active = false;
+    };
   }, [first]);
 
   return { products, loading, error };
