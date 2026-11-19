@@ -65,9 +65,7 @@ export default function TermsPage() {
             <section>
               <h2 className="font-display text-lg uppercase tracking-[0.02em] mb-3">5. Shipping & Delivery</h2>
               <p className="text-[var(--nc-grey)]">
-                Shipping timeframes are estimates and not guaranteed. Risk of loss and title 
-                for items pass to you upon delivery to the carrier. We are not responsible 
-                for delays caused by customs, weather, or carrier issues.
+                We deliver within Singapore only. Shipping is a $5 flat rate, and free on orders above $150.
               </p>
             </section>
 

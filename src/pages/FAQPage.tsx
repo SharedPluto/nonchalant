@@ -9,12 +9,12 @@ const faqs = [
     a: 'Every item on NonChalant is verified authentic before it reaches you. We source directly from brands and authorized retailers. Each product undergoes a multi-point inspection process. See our Authenticity Guarantee page for full details.',
   },
   {
-    q: 'How long does shipping take?',
-    a: 'Standard shipping takes 3-5 business days. Express shipping takes 1-2 business days. International orders take 7-14 business days. All orders are processed within 1-2 business days.',
+    q: 'Where do you deliver and how much does shipping cost?',
+    a: 'We deliver within Singapore only. Shipping is a $5 flat rate, and free on orders above $150.',
   },
   {
     q: 'What is your return policy?',
-    a: 'We accept returns within 30 days of delivery. Items must be unworn with original tags attached. Returns are free for domestic orders. Refunds are processed within 5-7 business days of receiving your return.',
+    a: 'We accept returns within 30 days of delivery. Items must be unworn with original tags attached. Returns are free for Singapore orders. Refunds are processed within 5-7 business days of receiving your return.',
   },
   {
     q: 'How do I find my size?',
@@ -22,7 +22,7 @@ const faqs = [
   },
   {
     q: 'Do you ship internationally?',
-    a: 'Yes, we ship worldwide. International shipping takes 7-14 business days. Rates are calculated at checkout based on your destination. Please note that duties and taxes may apply depending on your country.',
+    a: 'No. We currently deliver within Singapore only.',
   },
   {
     q: 'Can I cancel or modify my order?',

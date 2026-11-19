@@ -29,7 +29,7 @@ export default function ReturnsPage() {
           <section className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
             {[
               { icon: Clock, title: '30-Day Window', desc: 'Return any item within 30 days of delivery for a full refund.' },
-              { icon: Package, title: 'Free Returns', desc: 'We provide a prepaid return label for all domestic orders.' },
+              { icon: Package, title: 'Free Returns', desc: 'We provide a prepaid return label for all Singapore orders.' },
               { icon: CheckCircle, title: 'Full Refund', desc: 'Original payment method refunded within 5-7 business days of receiving your return.' },
               { icon: RotateCcw, title: 'Easy Process', desc: 'No questions asked. Just request a return and we will handle the rest.' },
             ].map((item) => (

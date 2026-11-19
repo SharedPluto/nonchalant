@@ -611,7 +611,7 @@ export default function ProductDetailPage() {
               <div className="mt-8 space-y-0">
                 {[
                   { id: 'desc', title: 'Description', content: product.description },
-                  { id: 'shipping', title: 'Shipping & Returns', content: 'Free shipping on orders over $150. Standard delivery 3-5 business days. Returns accepted within 30 days of delivery. Items must be unworn with original tags attached.' },
+                  { id: 'shipping', title: 'Shipping & Returns', content: 'We deliver within Singapore only. Shipping is a $5 flat rate, and free on orders above $150. Returns accepted within 30 days of delivery. Items must be unworn with original tags attached.' },
                   { id: 'details', title: 'Details', content: `SKU: ${product.sku}\nMaterial: Premium quality materials\nCare: Follow label instructions\nCountry of origin: Imported` },
                 ].map((section) => (
                   <div key={section.id} className="border-t border-[var(--nc-border)]">

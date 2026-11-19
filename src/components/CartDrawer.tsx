@@ -11,6 +11,8 @@ function getCheckoutUrlWithReturn(checkoutUrl: string | null): string {
 
 export default function CartDrawer() {
   const { items, isOpen, setOpen, removeItem, updateQuantity, subtotal, checkoutUrl, isLoading } = useShopifyCartStore();
+  const cartSubtotal = subtotal();
+  const qualifiesForFreeShipping = cartSubtotal > 150;
 
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
@@ -39,7 +41,7 @@ export default function CartDrawer() {
 
       {/* Drawer */}
       <div
-        className={`absolute top-0 right-0 bottom-0 w-full max-w-[420px] bg-[var(--nc-bg)] transition-transform duration-300 ${
+        className={`absolute top-0 right-0 bottom-0 w-full max-w-[420px] bg-[var(--nc-bg)] flex flex-col transition-transform duration-300 ${
           isOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
@@ -63,7 +65,7 @@ export default function CartDrawer() {
         ) : (
           <>
             {/* Items */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-6" style={{ maxHeight: 'calc(100vh - 220px)' }}>
+            <div className="flex-1 overflow-y-auto p-6 space-y-6">
               {items.map((item) => (
                 <div key={`${item.product.id}-${item.size}`} className="flex gap-4">
                   {/* Image */}
@@ -119,11 +121,20 @@ export default function CartDrawer() {
             </div>
 
             {/* Footer */}
-            <div className="absolute bottom-0 left-0 right-0 p-6 bg-[var(--nc-bg)] border-t border-[var(--nc-border)]">
-              <div className="flex justify-between mb-4">
+            <div className="flex-shrink-0 p-6 bg-[var(--nc-bg)] border-t border-[var(--nc-border)]">
+              <div className="flex justify-between mb-2">
                 <span className="text-sm">Subtotal</span>
-                <span className="text-sm font-medium">${subtotal()}</span>
+                <span className="text-sm font-medium">${cartSubtotal}</span>
               </div>
+              <div className="flex justify-between mb-2">
+                <span className="text-sm">Shipping to Singapore</span>
+                <span className="text-sm font-medium">{qualifiesForFreeShipping ? 'Free' : '$5 flat rate'}</span>
+              </div>
+              <p className="text-[11px] text-[var(--nc-grey)] mb-4">
+                Singapore delivery only. {qualifiesForFreeShipping
+                  ? 'Your order qualifies for free shipping.'
+                  : 'Free shipping on orders above $150.'}
+              </p>
               {checkoutUrl ? (
                 <a
                   href={getCheckoutUrlWithReturn(checkoutUrl)}
