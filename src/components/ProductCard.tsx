@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Eye, Bell } from 'lucide-react';
 import { useWaitlistStore } from '@/stores/waitlistStore';
 import type { Product } from '@/types';
+import { getShopifyImageUrl, getShopifySrcSet } from '@/lib/shopify/image';
 
 interface ProductCardProps {
   product: Product;
@@ -47,19 +48,27 @@ export default function ProductCard({ product, index = 0, onQuickView }: Product
       <div className="relative aspect-[3/4] overflow-hidden mb-2.5">
         {/* First image — default */}
         <img
-          src={product.images[0]}
+          src={getShopifyImageUrl(product.images[0], 400)}
+          srcSet={getShopifySrcSet(product.images[0], [400, 600, 800])}
+          sizes="(max-width: 640px) calc(50vw - 30px), (max-width: 1280px) 25vw, 220px"
           alt={product.name}
           className={`absolute inset-0 w-full h-full object-contain transition-all duration-500 ${
             isHovered && hasSecondImage ? 'opacity-0' : 'opacity-100'
           } ${isHovered ? 'scale-[1.03]' : 'scale-100'}`}
-          loading="lazy"
+          loading={index < 6 ? 'eager' : 'lazy'}
+          fetchPriority={index < 2 ? 'high' : 'auto'}
+          decoding="async"
+          width="600"
+          height="800"
           onLoad={() => setImageLoaded(true)}
         />
 
         {/* Second image — shown on hover */}
         {hasSecondImage && (
           <img
-            src={product.images[1]}
+            src={getShopifyImageUrl(product.images[1], 400)}
+            srcSet={getShopifySrcSet(product.images[1], [400, 600, 800])}
+            sizes="(max-width: 640px) calc(50vw - 30px), (max-width: 1280px) 25vw, 220px"
             alt={`${product.name} — alternate view`}
             className={`absolute inset-0 w-full h-full object-contain transition-all duration-500 ${
               isHovered ? 'opacity-100 scale-[1.03]' : 'opacity-0 scale-100'

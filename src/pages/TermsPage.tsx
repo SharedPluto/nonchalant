@@ -7,7 +7,7 @@ export default function TermsPage() {
       <MetaTags
         title="Terms of Service"
         description="Terms of Service for NonChalant. By using our website, you agree to these terms."
-        url="https://nonchalant.co/terms"
+        url="https://nonchalantstore.com/terms"
       />
       <main className="min-h-screen bg-[var(--nc-bg)] pt-[100px]">
         <div className="max-w-[800px] mx-auto px-6 md:px-12 pb-24">

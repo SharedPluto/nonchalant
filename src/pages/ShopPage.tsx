@@ -264,16 +264,24 @@ export default function ShopPage() {
   const shoeSizes = ['7', '7.5', '8', '8.5', '9', '9.5', '10', '10.5', '11', '12'];
 
   const activeFilterCount = activeFilters.length;
+  const hasQueryState = searchParams.toString().length > 0;
+  const canonicalPath = categoryFilter
+    ? `/categories/${categoryFilter}`
+    : brandFilter
+      ? `/brands/${brandFilter}`
+      : '/shop';
 
   return (
     <>
       <MetaTags
         title={getPageTitle()}
         description={getSeoDescription()}
-        url={`https://nonchalant.co/shop${searchParams.toString() ? `?${searchParams.toString()}` : ''}`}
+        url={`https://nonchalantstore.com${canonicalPath}`}
         type="website"
+        noindex={hasQueryState}
       />
       <main className="min-h-screen bg-[var(--nc-bg)] pt-[60px]">
+        <h1 className="sr-only">{getPageTitle()} | Streetwear & Sneakers in Singapore</h1>
         {/* Sticky Nav + Toolbar — hides together on scroll down */}
         <div className={`sticky top-[60px] z-10 bg-[var(--nc-bg)] border-b border-[var(--nc-border)] transition-transform duration-300 ease-out ${tabBarHidden ? '-translate-y-full' : 'translate-y-0'}`}>
           {/* Category Tab Bar */}

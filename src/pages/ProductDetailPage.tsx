@@ -7,6 +7,7 @@ import { getVariantIdForProductSize, useShopifyRelatedProducts } from '@/hooks/u
 import { products as staticProducts } from '@/data/products';
 import ProductCard from '@/components/ProductCard';
 import MetaTags from '@/components/seo/MetaTags';
+import { getShopifyImageUrl, getShopifySrcSet } from '@/lib/shopify/image';
 import { getShopifyClient } from '@/lib/shopify/client';
 import { mapShopifyProductToProduct } from '@/lib/shopify/mapper';
 import type { Product } from '@/types';
@@ -274,7 +275,7 @@ export default function ProductDetailPage() {
   if (!product) {
     return (
       <main className="min-h-screen bg-[var(--nc-bg)] pt-[100px] flex items-center justify-center">
-        <MetaTags title="Product Not Found" description="The product you are looking for does not exist." />
+        <MetaTags title="Product Not Found" description="The product you are looking for does not exist." noindex />
         <div className="text-center">
           <p className="text-[var(--nc-grey)] mb-4">Product not found.</p>
           <Link to="/shop" className="btn-primary text-xs py-3 px-6">Back to Shop</Link>
@@ -283,7 +284,7 @@ export default function ProductDetailPage() {
     );
   }
 
-  const productUrl = `https://nonchalant.co/#/product/${product.handle}`;
+  const productUrl = `https://nonchalantstore.com/product/${product.handle}`;
   const productImage = product.images[0] || '';
 
   // Overall product stock status (any variant available)
@@ -304,8 +305,8 @@ export default function ProductDetailPage() {
   return (
     <>
       <MetaTags
-        title={product.name}
-        description={product.description}
+        title={`${product.name} | Buy in Singapore`}
+        description={`Shop ${product.name}: ${product.description} Available from ${product.brand} in Singapore, priced at SGD ${product.price.toFixed(2)}.`}
         url={productUrl}
         image={productImage}
         type="product"
@@ -313,6 +314,12 @@ export default function ProductDetailPage() {
         brand={product.brand}
         availability={anyInStock ? 'InStock' : 'OutOfStock'}
         sku={product.sku}
+        breadcrumbs={[
+          { name: 'Home', path: '/' },
+          { name: 'Shop', path: '/shop' },
+          { name: product.category, path: `/categories/${product.categorySlug}` },
+          { name: product.name, path: `/product/${product.handle}` },
+        ]}
       />
       <main className="min-h-screen bg-[var(--nc-bg)] pt-[80px]">
         {/* Breadcrumb */}
@@ -322,7 +329,7 @@ export default function ProductDetailPage() {
             <span className="mx-2">/</span>
             <Link to="/shop" className="hover:text-[var(--nc-purple)] transition-colors">Shop</Link>
             <span className="mx-2">/</span>
-            <Link to={`/shop?category=${product.categorySlug}`} className="hover:text-[var(--nc-purple)] transition-colors">
+            <Link to={`/categories/${product.categorySlug}`} className="hover:text-[var(--nc-purple)] transition-colors">
               {product.category}
             </Link>
             <span className="mx-2">/</span>
@@ -340,9 +347,16 @@ export default function ProductDetailPage() {
                 onClick={() => setLightboxOpen(true)}
               >
                 <img
-                  src={product.images[mainImage]}
+                  src={getShopifyImageUrl(product.images[mainImage], 800)}
+                  srcSet={getShopifySrcSet(product.images[mainImage], [400, 600, 640, 800, 1200, 1600])}
+                  sizes="(min-width: 1280px) 640px, (min-width: 768px) 50vw, calc(100vw - 48px)"
                   alt={product.name}
                   className="w-full h-full object-contain transition-opacity duration-300"
+                  width="1200"
+                  height="1500"
+                  loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
                 />
                 {/* Sold out overlay */}
                 {!anyInStock && (
@@ -364,7 +378,17 @@ export default function ProductDetailPage() {
                         idx === mainImage ? 'border-[var(--nc-purple)]' : 'border-transparent'
                       }`}
                     >
-                      <img src={img} alt="" className="w-full h-full object-contain" />
+                      <img
+                        src={getShopifyImageUrl(img, 160)}
+                        srcSet={getShopifySrcSet(img, [160, 320])}
+                        sizes="80px"
+                        alt=""
+                        className="w-full h-full object-contain"
+                        width="80"
+                        height="96"
+                        loading="lazy"
+                        decoding="async"
+                      />
                     </button>
                   ))}
                 </div>
@@ -374,7 +398,7 @@ export default function ProductDetailPage() {
             {/* Product Info */}
             <div className="md:pt-4">
               <button
-                onClick={() => navigate(`/shop?brand=${product.brandSlug}`)}
+                onClick={() => navigate(`/brands/${product.brandSlug}`)}
                 className="text-eyebrow hover:underline"
               >
                 {product.brand}

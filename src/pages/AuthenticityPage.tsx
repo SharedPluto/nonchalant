@@ -8,7 +8,7 @@ export default function AuthenticityPage() {
       <MetaTags
         title="Authenticity Guarantee"
         description="NonChalant Authenticity Guarantee. Every item is verified authentic. We source directly from brands and authorized retailers."
-        url="https://nonchalant.co/authenticity"
+        url="https://nonchalantstore.com/authenticity"
       />
       <main className="min-h-screen bg-[var(--nc-bg)] pt-[100px]">
         <div className="max-w-[800px] mx-auto px-6 md:px-12 pb-24">

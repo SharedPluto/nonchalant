@@ -2,6 +2,7 @@ import { useRef, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { useShopifyProducts } from '@/hooks/useShopifyProduct';
+import { getShopifyImageUrl, getShopifySrcSet } from '@/lib/shopify/image';
 
 export default function NewDropsSection() {
   const { products, loading } = useShopifyProducts(50);
@@ -186,7 +187,7 @@ export default function NewDropsSection() {
           ref={scrollRef}
           className="flex gap-4 md:gap-5 overflow-x-auto scrollbar-hide pb-4 -mx-6 md:-mx-12 px-6 md:px-12"
         >
-          {newProducts.map((product) => (
+          {newProducts.map((product, index) => (
             <Link
               key={product.id}
               to={`/product/${product.handle}`}
@@ -195,10 +196,16 @@ export default function NewDropsSection() {
               {/* Image */}
               <div className="relative aspect-[3/4] overflow-hidden mb-3">
                 <img
-                  src={product.images[0]}
+                  src={getShopifyImageUrl(product.images[0], 400)}
+                  srcSet={getShopifySrcSet(product.images[0], [400, 600, 800])}
+                  sizes="(max-width: 767px) 220px, 280px"
+                  width="600"
+                  height="800"
+                  decoding="async"
                   alt={product.name}
                   className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-[1.03]"
-                  loading="lazy"
+                  loading={index < 2 ? 'eager' : 'lazy'}
+                  fetchPriority={index < 2 ? 'high' : 'auto'}
                 />
 
                 {/* NEW badge */}

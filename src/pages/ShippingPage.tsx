@@ -8,7 +8,7 @@ export default function ShippingPage() {
       <MetaTags
         title="Shipping & Delivery"
         description="NonChalant delivers within Singapore only. Shipping is a $5 flat rate, and free on orders above $150."
-        url="https://nonchalant.co/shipping"
+        url="https://nonchalantstore.com/shipping"
       />
       <main className="min-h-screen bg-[var(--nc-bg)] pt-[100px]">
         <div className="max-w-[800px] mx-auto px-6 md:px-12 pb-24">

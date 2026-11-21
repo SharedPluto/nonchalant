@@ -54,7 +54,7 @@ export default function FAQPage() {
       <MetaTags
         title="FAQ"
         description="Frequently asked questions about NonChalant. Shipping, returns, sizing, authenticity, and more."
-        url="https://nonchalant.co/faq"
+        url="https://nonchalantstore.com/faq"
       />
       <main className="min-h-screen bg-[var(--nc-bg)] pt-[100px]">
         <div className="max-w-[800px] mx-auto px-6 md:px-12 pb-24">

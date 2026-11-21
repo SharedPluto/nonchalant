@@ -41,7 +41,7 @@ export default function BlogPostPage() {
       <MetaTags
         title={post.title}
         description={post.excerpt || post.content.slice(0, 160)}
-        url={`https://nonchalant.co/blog/${post.handle}`}
+        url={`https://nonchalantstore.com/blog/${post.handle}`}
         image={post.image || undefined}
         type="article"
         publishedAt={post.publishedAt}

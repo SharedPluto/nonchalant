@@ -2,7 +2,7 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://nonchalant.co/sitemap.xml
+Sitemap: https://nonchalantstore.com/sitemap.xml
 
 # Disallow
 Disallow: /api/

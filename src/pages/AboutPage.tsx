@@ -22,7 +22,7 @@ export default function AboutPage() {
       <MetaTags
         title="About"
         description="NonChalant is a premium streetwear marketplace built for those who know. Authenticity guaranteed, curated selection. Style on your own terms."
-        url="https://nonchalant.co/about"
+        url="https://nonchalantstore.com/about"
         type="website"
       />
       <main className="min-h-screen bg-[var(--nc-bg)] pt-[60px]">

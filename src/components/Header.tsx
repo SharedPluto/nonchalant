@@ -42,9 +42,14 @@ export default function Header() {
           {/* Logo */}
           <Link to="/" className="flex items-center">
             <img
-              src="/assets/logo-wide.png"
+              src="/assets/logo-wide-400.webp"
+              srcSet="/assets/logo-wide-400.webp 400w, /assets/logo-wide-768.webp 768w"
+              sizes="(min-width: 768px) 169px, 123px"
               alt="NonChalant"
               className="h-[32px] md:h-[44px] w-auto"
+              width="768"
+              height="200"
+              decoding="async"
             />
           </Link>
 

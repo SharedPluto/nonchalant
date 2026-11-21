@@ -20,9 +20,15 @@ export default function Footer() {
           {/* Brand Column */}
           <div className="lg:col-span-2">
             <img
-              src="/assets/logo-wide.png"
+              src="/assets/logo-wide-400.webp"
+              srcSet="/assets/logo-wide-400.webp 400w, /assets/logo-wide-768.webp 768w"
+              sizes="200px"
               alt="NonChalant"
               className="h-[52px] w-auto"
+              width="768"
+              height="200"
+              loading="lazy"
+              decoding="async"
             />
             <p className="mt-4 text-xs text-[var(--nc-grey)] max-w-[280px] leading-relaxed">
               Premium Streetwear Marketplace.<br />
@@ -161,7 +167,7 @@ export default function Footer() {
         {/* Bottom Bar */}
         <div className="mt-12 pt-6 border-t border-[var(--nc-dark-border)] flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-[11px] text-[var(--nc-grey)]">
-            &copy; 2025 NonChalant. All rights reserved.
+            &copy; {new Date().getFullYear()} NonChalant. All rights reserved.
           </p>
           <p className="text-[11px] text-[var(--nc-grey)]">
             Designed for those who know.

@@ -2,7 +2,23 @@
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "framework": null,
+  "cleanUrls": true,
+  "trailingSlash": false,
   "rewrites": [
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/shop", "destination": "/shop/index.html" },
+    { "source": "/about", "destination": "/about/index.html" },
+    { "source": "/shipping", "destination": "/shipping/index.html" },
+    { "source": "/returns", "destination": "/returns/index.html" },
+    { "source": "/faq", "destination": "/faq/index.html" },
+    { "source": "/terms", "destination": "/terms/index.html" },
+    { "source": "/privacy", "destination": "/privacy/index.html" },
+    { "source": "/authenticity", "destination": "/authenticity/index.html" },
+    { "source": "/size-guide", "destination": "/size-guide/index.html" },
+    { "source": "/blog", "destination": "/blog/index.html" },
+    { "source": "/product/:handle", "destination": "/product/:handle/index.html" },
+    { "source": "/brands/:brand", "destination": "/brands/:brand/index.html" },
+    { "source": "/categories/:category", "destination": "/categories/:category/index.html" },
+    { "source": "/blog/:handle", "destination": "/blog/:handle/index.html" },
+    { "source": "/admin/waitlist", "destination": "/admin/waitlist/index.html" }
   ]
 }

@@ -7,6 +7,13 @@ import { ArrowRight } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
+const aestheticWebpSrcSet = (image: string) =>
+  [480, 768, 1152]
+    .map(width => `${image.replace(/\.jpg$/, `-${width}.webp`)} ${width}w`)
+    .join(', ');
+
+const aestheticImageSizes = '(min-width: 768px) 20vw, 100vw';
+
 export default function AestheticPanels() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -85,13 +92,24 @@ export default function AestheticPanels() {
               )}
 
               {/* Image */}
-              <img
-                src={aesthetic.image}
-                alt={aesthetic.name}
-                className={`absolute inset-0 w-full h-full object-cover transition-transform duration-700 ${
-                  hoveredIndex === index ? 'scale-[1.05]' : 'scale-100'
-                }`}
-              />
+              <picture>
+                <source
+                  type="image/webp"
+                  srcSet={aestheticWebpSrcSet(aesthetic.image)}
+                  sizes={aestheticImageSizes}
+                />
+                <img
+                  src={aesthetic.image}
+                  alt={aesthetic.name}
+                  className={`absolute inset-0 w-full h-full object-cover transition-transform duration-700 ${
+                    hoveredIndex === index ? 'scale-[1.05]' : 'scale-100'
+                  }`}
+                  loading="lazy"
+                  decoding="async"
+                  width="1152"
+                  height="1984"
+                />
+              </picture>
 
               {/* Gradient overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
@@ -134,17 +152,29 @@ export default function AestheticPanels() {
 
       {/* Mobile: Vertical stacked */}
       <div className="md:hidden">
-        {aesthetics.map((aesthetic) => (
+        {aesthetics.map((aesthetic, index) => (
           <div
             key={aesthetic.slug}
             className="relative h-[80vh] overflow-hidden cursor-pointer"
             onClick={() => handlePanelClick(aesthetic.slug)}
           >
-            <img
-              src={aesthetic.image}
-              alt={aesthetic.name}
-              className="absolute inset-0 w-full h-full object-cover"
-            />
+            <picture>
+              <source
+                type="image/webp"
+                srcSet={aestheticWebpSrcSet(aesthetic.image)}
+                sizes={aestheticImageSizes}
+              />
+              <img
+                src={aesthetic.image}
+                alt={aesthetic.name}
+                className="absolute inset-0 w-full h-full object-cover"
+                loading={index === 0 ? 'eager' : 'lazy'}
+                fetchPriority={index === 0 ? 'high' : 'auto'}
+                decoding="async"
+                width="1152"
+                height="1984"
+              />
+            </picture>
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
 
             {/* Vertical subtitle on left */}

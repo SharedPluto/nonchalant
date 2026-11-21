@@ -8,7 +8,7 @@ export default function ReturnsPage() {
       <MetaTags
         title="Returns & Refunds"
         description="NonChalant return policy. 30-day returns on unworn items with original tags. Easy process, no hassle."
-        url="https://nonchalant.co/returns"
+        url="https://nonchalantstore.com/returns"
       />
       <main className="min-h-screen bg-[var(--nc-bg)] pt-[100px]">
         <div className="max-w-[800px] mx-auto px-6 md:px-12 pb-24">

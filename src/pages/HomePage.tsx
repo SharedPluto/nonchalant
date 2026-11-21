@@ -1,23 +1,28 @@
+import { lazy, Suspense } from 'react';
 import MetaTags from '@/components/seo/MetaTags';
 import HeroSection from '@/sections/HeroSection';
 import NewDropsSection from '@/sections/NewDropsSection';
-import AestheticPanels from '@/sections/AestheticPanels';
 import BrandShowcase from '@/sections/BrandShowcase';
 import CategoryGrid from '@/sections/CategoryGrid';
+
+const AestheticPanels = lazy(() => import('@/sections/AestheticPanels'));
 
 export default function HomePage() {
   return (
     <>
       <MetaTags
-        title=""
-        description="NonChalant is a premium streetwear marketplace. Browse curated aesthetics including Minimalist, Skater, Tech, and Hypebeast. Shop top brands like Nike, Adidas, Stone Island, Supreme. Style on your own terms."
-        url="https://nonchalant.co/"
+        title="NonChalant | Streetwear & Sneakers in Singapore — Nike, Jordan, Palace, KITH"
+        description="Shop authenticated streetwear and sneakers in Singapore. Discover Nike, Jordan, Palace, KITH, and other curated brands at NonChalant."
+        url="https://nonchalantstore.com/"
         type="website"
       />
       <main>
+        <h1 className="sr-only">Streetwear & Sneakers in Singapore</h1>
         <HeroSection />
         <NewDropsSection />
-        <AestheticPanels />
+        <Suspense fallback={<section className="h-[80vh] md:h-screen bg-[var(--nc-black)]" aria-hidden="true" />}>
+          <AestheticPanels />
+        </Suspense>
         <BrandShowcase />
         <CategoryGrid />
       </main>

@@ -7,7 +7,7 @@ export default function PrivacyPage() {
       <MetaTags
         title="Privacy Policy"
         description="Privacy Policy for NonChalant. How we collect, use, and protect your personal information."
-        url="https://nonchalant.co/privacy"
+        url="https://nonchalantstore.com/privacy"
       />
       <main className="min-h-screen bg-[var(--nc-bg)] pt-[100px]">
         <div className="max-w-[800px] mx-auto px-6 md:px-12 pb-24">

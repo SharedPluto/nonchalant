@@ -1,4 +1,13 @@
 import { Helmet } from 'react-helmet-async';
+import {
+  absoluteUrl,
+  cleanDescription,
+  DEFAULT_DESCRIPTION,
+  DEFAULT_IMAGE,
+  SITE_NAME,
+  SITE_URL,
+  type Breadcrumb,
+} from '@/lib/seo';
 
 interface MetaTagsProps {
   title?: string;
@@ -13,13 +22,9 @@ interface MetaTagsProps {
   sku?: string;
   publishedAt?: string;
   author?: string;
+  noindex?: boolean;
+  breadcrumbs?: Breadcrumb[];
 }
-
-const SITE_NAME = 'NonChalant';
-const SITE_TITLE = 'NonChalant — Style on your own terms';
-const DEFAULT_DESCRIPTION = 'NonChalant is a premium streetwear marketplace. Browse curated aesthetics, brands, and categories. Style on your own terms.';
-const DEFAULT_IMAGE = 'https://nonchalant.co/og-image.jpg';
-const SITE_URL = 'https://nonchalant.co';
 
 export default function MetaTags({
   title,
@@ -28,37 +33,63 @@ export default function MetaTags({
   url = SITE_URL,
   type = 'website',
   price,
-  currency = 'USD',
+  currency = 'SGD',
   brand,
   availability = 'InStock',
   sku,
   publishedAt,
   author,
+  noindex = false,
+  breadcrumbs,
 }: MetaTagsProps) {
-  const fullTitle = title ? `${title} | ${SITE_NAME}` : SITE_TITLE;
+  const fullTitle = title
+    ? title.includes(SITE_NAME) ? title : `${title} | ${SITE_NAME}`
+    : 'NonChalant — Style on your own terms';
+  const metaDescription = cleanDescription(description);
+  const canonical = absoluteUrl(url);
+  const socialImage = absoluteUrl(image);
+
+  const organization = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: SITE_NAME,
+    url: SITE_URL,
+    logo: `${SITE_URL}/assets/logo.png`,
+    sameAs: ['https://www.instagram.com/thenonchalantstore'],
+    contactPoint: {
+      '@type': 'ContactPoint',
+      contactType: 'customer support',
+      email: 'support@nonchalantstore.com',
+      telephone: '+65 94898482',
+      areaServed: 'SG',
+    },
+  };
 
   return (
     <Helmet>
-      {/* Basic Meta */}
       <title>{fullTitle}</title>
-      <meta name="description" content={description} />
-      <link rel="canonical" href={url} />
+      <meta name="description" content={metaDescription} />
+      <meta name="robots" content={noindex ? 'noindex,follow' : 'index,follow'} />
+      <link rel="canonical" href={canonical} />
 
-      {/* Open Graph */}
       <meta property="og:site_name" content={SITE_NAME} />
       <meta property="og:title" content={fullTitle} />
-      <meta property="og:description" content={description} />
-      <meta property="og:image" content={image} />
-      <meta property="og:url" content={url} />
+      <meta property="og:description" content={metaDescription} />
+      <meta property="og:image" content={socialImage} />
+      <meta property="og:url" content={canonical} />
       <meta property="og:type" content={type} />
+      {type === 'product' && price !== undefined && (
+        <>
+          <meta property="product:price:amount" content={price.toFixed(2)} />
+          <meta property="product:price:currency" content={currency} />
+        </>
+      )}
 
-      {/* Twitter */}
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:title" content={fullTitle} />
-      <meta name="twitter:description" content={description} />
-      <meta name="twitter:image" content={image} />
+      <meta name="twitter:description" content={metaDescription} />
+      <meta name="twitter:image" content={socialImage} />
 
-      {/* Article meta tags */}
       {type === 'article' && (
         <>
           {publishedAt && <meta property="article:published_time" content={publishedAt} />}
@@ -66,63 +97,55 @@ export default function MetaTags({
         </>
       )}
 
-      {/* Product Schema (if product page) */}
       {type === 'product' && (
         <script type="application/ld+json">
           {JSON.stringify({
             '@context': 'https://schema.org',
             '@type': 'Product',
-            name: title,
-            description,
-            image,
-            brand: brand ? {
-              '@type': 'Brand',
-              name: brand,
-            } : undefined,
+            name: title?.replace(/\s*\|\s*Buy in Singapore\s*$/, ''),
+            description: metaDescription,
+            image: [socialImage],
+            brand: brand ? { '@type': 'Brand', name: brand } : undefined,
             sku,
-            offers: price ? {
+            offers: price !== undefined ? {
               '@type': 'Offer',
-              price: price.toString(),
+              price: price.toFixed(2),
               priceCurrency: currency,
               availability: `https://schema.org/${availability}`,
-              url,
+              url: canonical,
+              itemCondition: 'https://schema.org/NewCondition',
             } : undefined,
           })}
         </script>
       )}
 
-      {/* Website Schema (if homepage) */}
-      {type === 'website' && !title && (
+      {type === 'website' && (canonical === SITE_URL || canonical === `${SITE_URL}/`) && (
         <script type="application/ld+json">
           {JSON.stringify({
             '@context': 'https://schema.org',
             '@type': 'WebSite',
             name: SITE_NAME,
             url: SITE_URL,
-            potentialAction: {
-              '@type': 'SearchAction',
-              target: `${SITE_URL}/shop?q={search_term_string}`,
-              'query-input': 'required name=search_term_string',
-            },
           })}
         </script>
       )}
 
-      {/* Organization Schema */}
-      <script type="application/ld+json">
-        {JSON.stringify({
-          '@context': 'https://schema.org',
-          '@type': 'Organization',
-          name: SITE_NAME,
-          url: SITE_URL,
-          logo: `${SITE_URL}/logo.png`,
-          sameAs: [
-            'https://instagram.com/nonchalant',
-            'https://twitter.com/nonchalant',
-            'https://tiktok.com/@nonchalant',
-          ],
-        })}
-      </script>
+      {breadcrumbs && breadcrumbs.length > 0 && (
+        <script type="application/ld+json">
+          {JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'BreadcrumbList',
+            itemListElement: breadcrumbs.map((breadcrumb, index) => ({
+              '@type': 'ListItem',
+              position: index + 1,
+              name: breadcrumb.name,
+              item: absoluteUrl(breadcrumb.path),
+            })),
+          })}
+        </script>
+      )}
+
+      <script type="application/ld+json">{JSON.stringify(organization)}</script>
     </Helmet>
   );
 }

@@ -19,7 +19,7 @@ export default function BlogListPage() {
       <MetaTags
         title="Journal"
         description="The latest from NonChalant — drops, culture, and stories from the world of streetwear."
-        url="https://nonchalant.co/blog"
+        url="https://nonchalantstore.com/blog"
         type="website"
       />
       <main className="min-h-screen bg-[var(--nc-bg)] pt-[80px]">

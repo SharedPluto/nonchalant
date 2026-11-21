@@ -30,7 +30,7 @@ export default function SizeGuidePage() {
       <MetaTags
         title="Size Guide"
         description="Find your perfect fit with our comprehensive size guide for shoes, clothing, and accessories at NonChalant."
-        url="https://nonchalant.co/size-guide"
+        url="https://nonchalantstore.com/size-guide"
       />
       <main className="min-h-screen bg-[var(--nc-bg)] pt-[100px]">
         <div className="max-w-[800px] mx-auto px-6 md:px-12 pb-24">
