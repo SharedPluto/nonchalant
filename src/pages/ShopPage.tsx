@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from 'react';
-import { useSearchParams, Link } from 'react-router-dom';
+import { useState, useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { X, SlidersHorizontal, ChevronDown } from 'lucide-react';
 import { brands, aesthetics, categories } from '@/data/products';
 import { useShopifyProducts } from '@/hooks/useShopifyProduct';
@@ -13,7 +13,6 @@ const sortOptions = [
   { value: 'newest', label: 'Newest' },
   { value: 'price-low', label: 'Price: Low to High' },
   { value: 'price-high', label: 'Price: High to Low' },
-  { value: 'best-selling', label: 'Best Selling' },
 ];
 
 const categoryTabs = [
@@ -26,6 +25,22 @@ const categoryTabs = [
   { slug: 'accessories', label: 'Accessories' },
 ];
 
+type ActiveFilter = {
+  type: 'tag' | 'sale' | 'aesthetic' | 'brand' | 'category' | 'size' | 'stock';
+  value: string;
+  label: string;
+};
+
+const getParamValues = (params: URLSearchParams, key: string) => {
+  const values = params.getAll(key).flatMap(value => value.split(','));
+  return Array.from(new Set(values.map(value => value.trim()).filter(Boolean)));
+};
+
+const setParamValues = (params: URLSearchParams, key: string, values: string[]) => {
+  params.delete(key);
+  values.forEach(value => params.append(key, value));
+};
+
 export default function ShopPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [filterPanelOpen, setFilterPanelOpen] = useState(false);
@@ -37,60 +52,86 @@ export default function ShopPage() {
   // Fetch from Shopify ONLY
   const { products, loading: shopifyLoading } = useShopifyProducts(50);
 
-  // Get filter values from URL
-  const aestheticFilter = searchParams.get('aesthetic') || '';
-  const brandFilter = searchParams.get('brand') || '';
-  const categoryFilter = searchParams.get('category') || '';
+  // Applied filters always come from the URL. This keeps chips, tabs, reloads,
+  // shared links, and the rendered product grid synchronized.
+  const selectedAesthetics = getParamValues(searchParams, 'aesthetic');
+  const selectedBrands = getParamValues(searchParams, 'brand');
+  const selectedCategories = getParamValues(searchParams, 'category');
+  const selectedSizes = getParamValues(searchParams, 'size');
   const tagFilter = searchParams.get('tag') || '';
-  const sortValue = searchParams.get('sort') || 'newest';
   const saleOnly = searchParams.get('sale') === 'true';
+  const inStockOnly = searchParams.get('stock') === 'in-stock';
+  const sortValue = searchParams.get('sort') || 'newest';
+  const sort = sortOptions.some(option => option.value === sortValue) ? sortValue : 'newest';
 
-  // Local filter states
-  const [selectedAesthetics, setSelectedAesthetics] = useState<string[]>(
-    aestheticFilter ? [aestheticFilter] : []
-  );
-  const [selectedBrands, setSelectedBrands] = useState<string[]>(
-    brandFilter ? [brandFilter] : []
-  );
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(
-    categoryFilter ? [categoryFilter] : []
-  );
-  const [selectedSizes, setSelectedSizes] = useState<string[]>([]);
-  const [sort, setSort] = useState(sortValue);
-  const [inStockOnly, setInStockOnly] = useState(false);
+  const aestheticFilter = selectedAesthetics.length === 1 ? selectedAesthetics[0] : '';
+  const brandFilter = selectedBrands.length === 1 ? selectedBrands[0] : '';
+  const categoryFilter = selectedCategories.length === 1 ? selectedCategories[0] : '';
 
-  // Sync with URL params
-  useEffect(() => {
-    setSelectedAesthetics(aestheticFilter ? [aestheticFilter] : []);
-    setSelectedBrands(brandFilter ? [brandFilter] : []);
-    setSelectedCategories(categoryFilter ? [categoryFilter] : []);
-    setSort(sortValue || 'newest');
-  }, [aestheticFilter, brandFilter, categoryFilter, sortValue]);
+  // Brand options come from actual Shopify Vendor values instead of a fixed
+  // subset. Existing curated names are reused where their slugs match.
+  const shopBrands = useMemo(() => {
+    const brandMap = new Map<string, { name: string; slug: string }>();
+    products.forEach(product => {
+      if (!product.brandSlug || brandMap.has(product.brandSlug)) return;
+      const curatedBrand = brands.find(brand => brand.slug === product.brandSlug);
+      brandMap.set(product.brandSlug, {
+        name: curatedBrand?.name || product.brand,
+        slug: product.brandSlug,
+      });
+    });
+    return Array.from(brandMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+  }, [products]);
 
-  // Filter and sort products
+  // Draft selections are used only inside the filter drawer. Closing the
+  // drawer discards them; Apply writes them to the URL in one operation.
+  const [draftAesthetics, setDraftAesthetics] = useState<string[]>([]);
+  const [draftBrands, setDraftBrands] = useState<string[]>([]);
+  const [draftCategories, setDraftCategories] = useState<string[]>([]);
+  const [draftSizes, setDraftSizes] = useState<string[]>([]);
+  const [draftInStockOnly, setDraftInStockOnly] = useState(false);
+
+  const openFilterPanel = () => {
+    setDraftAesthetics([...selectedAesthetics]);
+    setDraftBrands([...selectedBrands]);
+    setDraftCategories([...selectedCategories]);
+    setDraftSizes([...selectedSizes]);
+    setDraftInStockOnly(inStockOnly);
+    setFilterPanelOpen(true);
+  };
+
+  const toggleDraftFilter = (
+    value: string,
+    setter: React.Dispatch<React.SetStateAction<string[]>>,
+  ) => {
+    setter(previous => previous.includes(value)
+      ? previous.filter(item => item !== value)
+      : [...previous, value]);
+  };
+
   const filteredProducts = useMemo(() => {
     let result = [...products];
 
     if (selectedAesthetics.length > 0) {
-      result = result.filter(p => selectedAesthetics.includes(p.aestheticSlug));
+      result = result.filter(product => selectedAesthetics.includes(product.aestheticSlug));
     }
     if (selectedBrands.length > 0) {
-      result = result.filter(p => selectedBrands.includes(p.brandSlug));
+      result = result.filter(product => selectedBrands.includes(product.brandSlug));
     }
     if (selectedCategories.length > 0) {
-      result = result.filter(p => selectedCategories.includes(p.categorySlug));
+      result = result.filter(product => selectedCategories.includes(product.categorySlug));
     }
     if (selectedSizes.length > 0) {
-      result = result.filter(p => p.sizes.some(s => selectedSizes.includes(s)));
+      result = result.filter(product => product.sizes.some(size => selectedSizes.includes(size)));
     }
     if (inStockOnly) {
-      result = result.filter(p => p.inStock);
+      result = result.filter(product => product.inStock);
     }
     if (saleOnly) {
-      result = result.filter(p => p.originalPrice !== null);
+      result = result.filter(product => product.originalPrice !== null);
     }
     if (tagFilter === 'new') {
-      result = result.filter(p => p.isNew);
+      result = result.filter(product => product.isNew);
     }
 
     switch (sort) {
@@ -100,61 +141,80 @@ export default function ShopPage() {
       case 'price-high':
         result.sort((a, b) => b.price - a.price);
         break;
-      case 'newest':
-        result.sort((a, b) => (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0));
-        break;
       default:
+        result.sort((a, b) => Number(b.isNew) - Number(a.isNew));
         break;
     }
 
     return result;
   }, [selectedAesthetics, selectedBrands, selectedCategories, selectedSizes, inStockOnly, saleOnly, tagFilter, sort, products]);
 
-  // Toggle filter
-  const toggleFilter = (value: string, _current: string[], setter: React.Dispatch<React.SetStateAction<string[]>>) => {
-    setter(prev => prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]);
-  };
-
-  // Clear all filters
   const clearAllFilters = () => {
-    setSelectedAesthetics([]);
-    setSelectedBrands([]);
-    setSelectedCategories([]);
-    setSelectedSizes([]);
-    setInStockOnly(false);
     const params = new URLSearchParams();
     if (sort !== 'newest') params.set('sort', sort);
     setSearchParams(params);
   };
 
-  // Set category via tab
   const setCategoryTab = (slug: string) => {
     const params = new URLSearchParams(searchParams);
-    if (slug) {
-      params.set('category', slug);
-    } else {
-      params.delete('category');
-    }
+    params.delete('category');
+    if (slug) params.set('category', slug);
     setSearchParams(params);
   };
 
-  // Apply filters from panel
+  const toggleNewArrivals = () => {
+    const params = new URLSearchParams(searchParams);
+    if (tagFilter === 'new') params.delete('tag');
+    else params.set('tag', 'new');
+    setSearchParams(params);
+  };
+
+  const toggleSale = () => {
+    const params = new URLSearchParams(searchParams);
+    if (saleOnly) params.delete('sale');
+    else params.set('sale', 'true');
+    setSearchParams(params);
+  };
+
+  const updateSort = (value: string) => {
+    const params = new URLSearchParams(searchParams);
+    if (value === 'newest') params.delete('sort');
+    else params.set('sort', value);
+    setSearchParams(params);
+  };
+
   const applyFilters = () => {
-    const params = new URLSearchParams();
-    if (selectedAesthetics.length === 1) params.set('aesthetic', selectedAesthetics[0]);
-    if (selectedBrands.length === 1) params.set('brand', selectedBrands[0]);
-    if (selectedCategories.length === 1) params.set('category', selectedCategories[0]);
-    if (sort !== 'newest') params.set('sort', sort);
+    const params = new URLSearchParams(searchParams);
+    setParamValues(params, 'aesthetic', draftAesthetics);
+    setParamValues(params, 'brand', draftBrands);
+    setParamValues(params, 'category', draftCategories);
+    setParamValues(params, 'size', draftSizes);
+    if (draftInStockOnly) params.set('stock', 'in-stock');
+    else params.delete('stock');
     setSearchParams(params);
     setFilterPanelOpen(false);
   };
 
-  // Get page title
+  const removeFilter = (filter: ActiveFilter) => {
+    const params = new URLSearchParams(searchParams);
+
+    if (filter.type === 'tag') params.delete('tag');
+    else if (filter.type === 'sale') params.delete('sale');
+    else if (filter.type === 'stock') params.delete('stock');
+    else {
+      const key = filter.type === 'size' ? 'size' : filter.type;
+      const remaining = getParamValues(params, key).filter(value => value !== filter.value);
+      setParamValues(params, key, remaining);
+    }
+
+    setSearchParams(params);
+  };
+
   const getPageTitle = () => {
     if (tagFilter === 'new') return "What's New";
-    if (categoryFilter) return categories.find(c => c.slug === categoryFilter)?.name || 'Shop';
-    if (aestheticFilter) return aesthetics.find(a => a.slug === aestheticFilter)?.name || 'Shop';
-    if (brandFilter) return brands.find(b => b.slug === brandFilter)?.name || 'Shop';
+    if (categoryFilter) return categories.find(category => category.slug === categoryFilter)?.name || 'Shop';
+    if (aestheticFilter) return aesthetics.find(aesthetic => aesthetic.slug === aestheticFilter)?.name || 'Shop';
+    if (brandFilter) return shopBrands.find(brand => brand.slug === brandFilter)?.name || 'Shop';
     if (saleOnly) return 'Sale';
     return 'All Products';
   };
@@ -164,33 +224,46 @@ export default function ShopPage() {
       return "Shop the latest drops at NonChalant. New arrivals from Nike, Adidas, Stone Island, Supreme, and more. Updated regularly.";
     }
     if (categoryFilter) {
-      const category = categories.find(c => c.slug === categoryFilter);
+      const category = categories.find(item => item.slug === categoryFilter);
       return `Shop ${category?.name.toLowerCase()} at NonChalant. Browse premium streetwear ${category?.name.toLowerCase()} from top brands.`;
     }
     if (aestheticFilter) {
-      const aesthetic = aesthetics.find(a => a.slug === aestheticFilter);
+      const aesthetic = aesthetics.find(item => item.slug === aestheticFilter);
       return `Shop ${aesthetic?.name} streetwear at NonChalant. ${aesthetic?.subtitle}.`;
     }
     if (brandFilter) {
-      const brand = brands.find(b => b.slug === brandFilter);
+      const brand = shopBrands.find(item => item.slug === brandFilter);
       return `Shop ${brand?.name} at NonChalant. Browse the latest ${brand?.name} streetwear, sneakers, and accessories.`;
     }
     return 'Browse all products at NonChalant. Premium streetwear, sneakers, and accessories from Nike, Adidas, Stone Island, Supreme, and more.';
   };
 
-  // Active filter chips
-  const activeFilters = [
-    ...(tagFilter === 'new' ? [{ type: 'tag', value: 'new', label: "What's New" }] : []),
-    ...selectedAesthetics.map(a => ({ type: 'aesthetic', value: a, label: aesthetics.find(x => x.slug === a)?.name || a })),
-    ...selectedBrands.map(b => ({ type: 'brand', value: b, label: brands.find(x => x.slug === b)?.name || b })),
-    ...selectedCategories.map(c => ({ type: 'category', value: c, label: categories.find(x => x.slug === c)?.name || c })),
+  const activeFilters: ActiveFilter[] = [
+    ...(tagFilter === 'new' ? [{ type: 'tag' as const, value: 'new', label: "What's New" }] : []),
+    ...(saleOnly ? [{ type: 'sale' as const, value: 'true', label: 'Sale' }] : []),
+    ...selectedAesthetics.map(value => ({
+      type: 'aesthetic' as const,
+      value,
+      label: aesthetics.find(item => item.slug === value)?.name || value,
+    })),
+    ...selectedBrands.map(value => ({
+      type: 'brand' as const,
+      value,
+      label: shopBrands.find(item => item.slug === value)?.name || value,
+    })),
+    ...selectedCategories.map(value => ({
+      type: 'category' as const,
+      value,
+      label: categories.find(item => item.slug === value)?.name || value,
+    })),
+    ...selectedSizes.map(value => ({ type: 'size' as const, value, label: `Size: ${value}` })),
+    ...(inStockOnly ? [{ type: 'stock' as const, value: 'in-stock', label: 'In Stock' }] : []),
   ];
 
   const clothingSizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
   const shoeSizes = ['7', '7.5', '8', '8.5', '9', '9.5', '10', '10.5', '11', '12'];
 
-  // Active filter count for floating pill badge
-  const activeFilterCount = activeFilters.length + selectedSizes.length + (inStockOnly ? 1 : 0);
+  const activeFilterCount = activeFilters.length;
 
   return (
     <>
@@ -211,7 +284,7 @@ export default function ShopPage() {
                   key={tab.slug}
                   onClick={() => setCategoryTab(tab.slug)}
                   className={`whitespace-nowrap text-[11px] uppercase tracking-[0.08em] px-3 py-1.5 transition-colors duration-200 ${
-                    (categoryFilter === tab.slug) || (!categoryFilter && !tab.slug)
+                    (selectedCategories.length === 1 && categoryFilter === tab.slug) || (selectedCategories.length === 0 && !tab.slug)
                       ? 'text-[var(--nc-purple)] font-medium'
                       : 'text-[var(--nc-grey)] hover:text-[var(--nc-text)]'
                   }`}
@@ -219,8 +292,8 @@ export default function ShopPage() {
                   {tab.label}
                 </button>
               ))}
-              <Link
-                to="/shop?tag=new"
+              <button
+                onClick={toggleNewArrivals}
                 className={`whitespace-nowrap text-[11px] uppercase tracking-[0.08em] px-3 py-1.5 transition-colors duration-200 ${
                   tagFilter === 'new'
                     ? 'text-[var(--nc-purple)] font-medium'
@@ -228,9 +301,9 @@ export default function ShopPage() {
                 }`}
               >
                 New Arrivals
-              </Link>
-              <Link
-                to="/shop?sale=true"
+              </button>
+              <button
+                onClick={toggleSale}
                 className={`whitespace-nowrap text-[11px] uppercase tracking-[0.08em] px-3 py-1.5 transition-colors duration-200 ${
                   saleOnly
                     ? 'text-[var(--nc-purple)] font-medium'
@@ -238,7 +311,7 @@ export default function ShopPage() {
                 }`}
               >
                 Sale
-              </Link>
+              </button>
             </div>
           </div>
 
@@ -253,16 +326,7 @@ export default function ShopPage() {
                     {activeFilters.map(f => (
                       <button
                         key={`${f.type}-${f.value}`}
-                        onClick={() => {
-                          if (f.type === 'tag') {
-                            const params = new URLSearchParams(searchParams);
-                            params.delete('tag');
-                            setSearchParams(params);
-                          }
-                          if (f.type === 'aesthetic') toggleFilter(f.value, selectedAesthetics, setSelectedAesthetics);
-                          if (f.type === 'brand') toggleFilter(f.value, selectedBrands, setSelectedBrands);
-                          if (f.type === 'category') toggleFilter(f.value, selectedCategories, setSelectedCategories);
-                        }}
+                        onClick={() => removeFilter(f)}
                         className="flex items-center gap-1 bg-[var(--nc-offwhite)] border border-[var(--nc-border)] px-2.5 py-1 text-[10px] uppercase tracking-wider text-[var(--nc-text)] hover:border-[var(--nc-purple)] transition-colors flex-shrink-0"
                       >
                         {f.label}
@@ -289,7 +353,7 @@ export default function ShopPage() {
                 <div className="relative">
                   <select
                     value={sort}
-                    onChange={(e) => setSort(e.target.value)}
+                    onChange={(e) => updateSort(e.target.value)}
                     className="appearance-none bg-transparent text-[11px] uppercase tracking-wider pr-6 cursor-pointer outline-none text-[var(--nc-text)] hover:text-[var(--nc-purple)] transition-colors"
                   >
                     {sortOptions.map(opt => (
@@ -304,7 +368,7 @@ export default function ShopPage() {
 
                 {/* Filter button */}
                 <button
-                  onClick={() => setFilterPanelOpen(true)}
+                  onClick={openFilterPanel}
                   className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-[var(--nc-text)] hover:text-[var(--nc-purple)] transition-colors"
                 >
                   <SlidersHorizontal size={13} />
@@ -383,14 +447,14 @@ export default function ShopPage() {
                   {aesthetics.map(a => (
                     <label key={a.slug} className="flex items-center gap-3 cursor-pointer group">
                       <div
-                        onClick={() => toggleFilter(a.slug, selectedAesthetics, setSelectedAesthetics)}
+                        onClick={() => toggleDraftFilter(a.slug, setDraftAesthetics)}
                         className={`w-4 h-4 border flex items-center justify-center transition-colors ${
-                          selectedAesthetics.includes(a.slug)
+                          draftAesthetics.includes(a.slug)
                             ? 'bg-[var(--nc-purple)] border-[var(--nc-purple)]'
                             : 'border-[var(--nc-grey)] group-hover:border-[var(--nc-text)]'
                         }`}
                       >
-                        {selectedAesthetics.includes(a.slug) && (
+                        {draftAesthetics.includes(a.slug) && (
                           <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
                             <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" />
                           </svg>
@@ -409,17 +473,17 @@ export default function ShopPage() {
               <div>
                 <h4 className="text-[11px] font-medium uppercase tracking-[0.1em] mb-4 text-[var(--nc-grey)]">Brand</h4>
                 <div className="space-y-2.5 max-h-[240px] overflow-y-auto scrollbar-hide">
-                  {brands.map(b => (
+                  {shopBrands.map(b => (
                     <label key={b.slug} className="flex items-center gap-3 cursor-pointer group">
                       <div
-                        onClick={() => toggleFilter(b.slug, selectedBrands, setSelectedBrands)}
+                        onClick={() => toggleDraftFilter(b.slug, setDraftBrands)}
                         className={`w-4 h-4 border flex items-center justify-center transition-colors ${
-                          selectedBrands.includes(b.slug)
+                          draftBrands.includes(b.slug)
                             ? 'bg-[var(--nc-purple)] border-[var(--nc-purple)]'
                             : 'border-[var(--nc-grey)] group-hover:border-[var(--nc-text)]'
                         }`}
                       >
-                        {selectedBrands.includes(b.slug) && (
+                        {draftBrands.includes(b.slug) && (
                           <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
                             <path d="M1 4L3.5 6.5L9 1" stroke="white" strokeWidth="1.5" />
                           </svg>
@@ -441,9 +505,9 @@ export default function ShopPage() {
                   {[...clothingSizes, ...shoeSizes].map(size => (
                     <button
                       key={size}
-                      onClick={() => toggleFilter(size, selectedSizes, setSelectedSizes)}
+                      onClick={() => toggleDraftFilter(size, setDraftSizes)}
                       className={`py-2 text-[11px] border transition-colors ${
-                        selectedSizes.includes(size)
+                        draftSizes.includes(size)
                           ? 'bg-[var(--nc-purple)] text-white border-[var(--nc-purple)]'
                           : 'border-[var(--nc-border)] hover:border-[var(--nc-purple)]'
                       }`}
@@ -462,14 +526,14 @@ export default function ShopPage() {
                 <h4 className="text-[11px] font-medium uppercase tracking-[0.1em] mb-4 text-[var(--nc-grey)]">Availability</h4>
                 <label className="flex items-center gap-3 cursor-pointer">
                   <div
-                    onClick={() => setInStockOnly(!inStockOnly)}
+                    onClick={() => setDraftInStockOnly(!draftInStockOnly)}
                     className={`w-10 h-5 flex items-center transition-colors cursor-pointer ${
-                      inStockOnly ? 'bg-[var(--nc-purple)]' : 'bg-[var(--nc-grey)]/20'
+                      draftInStockOnly ? 'bg-[var(--nc-purple)]' : 'bg-[var(--nc-grey)]/20'
                     }`}
                   >
                     <div
                       className={`w-4 h-4 bg-white shadow-sm transition-transform ${
-                        inStockOnly ? 'translate-x-5' : 'translate-x-0.5'
+                        draftInStockOnly ? 'translate-x-5' : 'translate-x-0.5'
                       }`}
                     />
                   </div>
@@ -501,7 +565,7 @@ export default function ShopPage() {
 
         {/* Floating Filter Pill — Mobile only */}
         <FloatingFilterPill
-          onClick={() => setFilterPanelOpen(true)}
+          onClick={openFilterPanel}
           activeFilterCount={activeFilterCount}
         />
 

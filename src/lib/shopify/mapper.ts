@@ -41,34 +41,66 @@ export interface ShopifyProduct {
   };
 }
 
-export function mapShopifyProductToProduct(sp: ShopifyProduct): Product {
-  // Extract aesthetic from tags (supports both old and new tag names)
-  const aestheticTags = ['minimalist', 'skater', 'tech', 'hypebeast', 'easy-does-it', 'touch-grass', 'just-a-chill-guy', 'iykyk', 'athleisure', 'performance-ish'];
-  const matchedTag = sp.tags.find(t => aestheticTags.includes(t.toLowerCase())) || 'minimalist';
-  const aestheticSlugMap: Record<string, string> = {
-    minimalist: 'easy-does-it',
-    'easy-does-it': 'easy-does-it',
-    skater: 'touch-grass',
-    'touch-grass': 'touch-grass',
-    tech: 'just-a-chill-guy',
-    'just-a-chill-guy': 'just-a-chill-guy',
-    hypebeast: 'iykyk',
-    iykyk: 'iykyk',
-    athleisure: 'athleisure',
-    'performance-ish': 'athleisure',
-  };
-  const aestheticSlug = aestheticSlugMap[matchedTag.toLowerCase()] || 'easy-does-it';
-  const aestheticNameMap: Record<string, string> = {
-    'easy-does-it': 'EASY DOES IT',
-    'touch-grass': 'TOUCH GRASS',
-    'just-a-chill-guy': 'JUST A CHILL GUY',
-    iykyk: 'IYKYK',
-    athleisure: 'PERFORMANCE-ISH',
-  };
-  const aesthetic = aestheticNameMap[aestheticSlug] || 'EASY DOES IT';
+const aestheticSlugMap: Record<string, string> = {
+  minimalist: 'easy-does-it',
+  'easy-does-it': 'easy-does-it',
+  skater: 'touch-grass',
+  'touch-grass': 'touch-grass',
+  tech: 'just-a-chill-guy',
+  'just-a-chill-guy': 'just-a-chill-guy',
+  hypebeast: 'iykyk',
+  iykyk: 'iykyk',
+  athleisure: 'athleisure',
+  'performance-ish': 'athleisure',
+};
 
-  // Build brand slug from vendor
+const aestheticNameMap: Record<string, string> = {
+  'easy-does-it': 'EASY DOES IT',
+  'touch-grass': 'TOUCH GRASS',
+  'just-a-chill-guy': 'JUST A CHILL GUY',
+  iykyk: 'IYKYK',
+  athleisure: 'PERFORMANCE-ISH',
+};
+
+export function getCategoryForProductType(productType: string): { name: string; slug: string } {
+  const normalized = productType.trim().toLowerCase().replace(/\s+/g, ' ');
+
+  if (normalized === 'shoes' || normalized.includes('footwear')) {
+    return { name: 'Shoes', slug: 'shoes' };
+  }
+  if (normalized === 'tops' || normalized.startsWith('tops -')) {
+    return { name: 'Tops', slug: 'tops' };
+  }
+  if (normalized === 'bottoms' || normalized.startsWith('bottoms -')) {
+    return { name: 'Bottoms', slug: 'bottoms' };
+  }
+  if (normalized === 'jackets' || normalized.startsWith('outerwear -')) {
+    return { name: 'Jackets', slug: 'jackets' };
+  }
+  if (normalized === 'bags' || normalized === 'accessories - bags') {
+    return { name: 'Bags', slug: 'bags' };
+  }
+  if (normalized === 'accessories' || normalized.startsWith('accessories -')) {
+    return { name: 'Accessories', slug: 'accessories' };
+  }
+
+  return { name: 'Uncategorized', slug: 'uncategorized' };
+}
+
+export function mapShopifyProductToProduct(sp: ShopifyProduct): Product {
+  const normalizedTags = sp.tags.map(tag => tag.trim().toLowerCase());
+
+  // Aesthetic is controlled by one recognized product tag. Untagged products
+  // remain in All Products without being assigned to an unrelated aesthetic.
+  const matchedTag = normalizedTags.find(tag => tag in aestheticSlugMap) || '';
+  const aestheticSlug = aestheticSlugMap[matchedTag] || '';
+  const aesthetic = aestheticNameMap[aestheticSlug] || 'Unassigned';
+
+  // Brand comes directly from Shopify's Vendor field.
   const brandSlug = sp.vendor.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+
+  // Category comes from Shopify's custom Product type field.
+  const category = getCategoryForProductType(sp.productType);
 
   // Extract sizes from variants
   const sizes = sp.variants.edges.map(v => {
@@ -76,14 +108,21 @@ export function mapShopifyProductToProduct(sp: ShopifyProduct): Product {
     return sizeOption ? sizeOption.value : v.node.title;
   });
 
-  // Check tags for status
-  const isNew = sp.tags.some(t => t.toLowerCase() === 'new');
+  // New Arrivals / What's New is controlled by the exact "new" tag.
+  const isNew = normalizedTags.includes('new');
   const lowStock = sp.variants.edges.some(v => (v.node.quantityAvailable ?? 0) < 5 && v.node.quantityAvailable > 0);
 
-  // Compare at price for sale
-  const compareAtPrice = sp.compareAtPriceRange.minVariantPrice?.amount;
+  // Sale is controlled by variant pricing, not by a product tag. A product is
+  // on sale when at least one variant's Compare-at price exceeds its Price.
   const currentPrice = parseFloat(sp.priceRange.minVariantPrice.amount);
-  const originalPrice = compareAtPrice && parseFloat(compareAtPrice) > currentPrice ? parseFloat(compareAtPrice) : null;
+  const saleCompareAtPrices = sp.variants.edges.flatMap(({ node }) => {
+    const variantPrice = parseFloat(node.price.amount);
+    const compareAtPrice = node.compareAtPrice ? parseFloat(node.compareAtPrice.amount) : null;
+    return compareAtPrice !== null && compareAtPrice > variantPrice ? [compareAtPrice] : [];
+  });
+  const originalPrice = saleCompareAtPrices.length > 0
+    ? Math.min(...saleCompareAtPrices)
+    : null;
 
   // Images
   const images = [sp.featuredImage?.url].filter(Boolean) as string[];
@@ -105,8 +144,8 @@ export function mapShopifyProductToProduct(sp: ShopifyProduct): Product {
     name: sp.title,
     brand: sp.vendor,
     brandSlug,
-    category: sp.productType || 'Accessories',
-    categorySlug: (sp.productType || 'accessories').toLowerCase().replace(/\s+/g, '-'),
+    category: category.name,
+    categorySlug: category.slug,
     aesthetic,
     aestheticSlug,
     price: currentPrice,
@@ -122,7 +161,7 @@ export function mapShopifyProductToProduct(sp: ShopifyProduct): Product {
 }
 
 export function getVariantIdForSize(shopifyProduct: ShopifyProduct, size: string): string | null {
-  const variant = shopifyProduct.variants.edges.find(v => {
+  const variant = sp.variants.edges.find(v => {
     const opt = v.node.selectedOptions.find(o => o.name.toLowerCase() === 'size');
     return opt?.value === size;
   });
