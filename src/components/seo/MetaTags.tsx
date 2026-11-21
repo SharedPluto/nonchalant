@@ -16,7 +16,8 @@ interface MetaTagsProps {
 }
 
 const SITE_NAME = 'NonChalant';
-const DEFAULT_DESCRIPTION = 'NonChalant is a premium streetwear marketplace. Browse curated aesthetics, brands, and categories. Style Without The Effort.';
+const SITE_TITLE = 'NonChalant — Style on your own terms';
+const DEFAULT_DESCRIPTION = 'NonChalant is a premium streetwear marketplace. Browse curated aesthetics, brands, and categories. Style on your own terms.';
 const DEFAULT_IMAGE = 'https://nonchalant.co/og-image.jpg';
 const SITE_URL = 'https://nonchalant.co';
 
@@ -34,7 +35,7 @@ export default function MetaTags({
   publishedAt,
   author,
 }: MetaTagsProps) {
-  const fullTitle = title ? `${title} | ${SITE_NAME}` : SITE_NAME;
+  const fullTitle = title ? `${title} | ${SITE_NAME}` : SITE_TITLE;
 
   return (
     <Helmet>

@@ -21,7 +21,7 @@ export default function AboutPage() {
     <>
       <MetaTags
         title="About"
-        description="NonChalant is a premium streetwear marketplace built for those who know. Authenticity guaranteed, curated selection, without the effort."
+        description="NonChalant is a premium streetwear marketplace built for those who know. Authenticity guaranteed, curated selection. Style on your own terms."
         url="https://nonchalant.co/about"
         type="website"
       />
@@ -44,7 +44,7 @@ export default function AboutPage() {
                 <p className="mt-6 text-base text-[var(--nc-text)]/70 leading-relaxed max-w-[420px]">
                   NonChalant is a premium streetwear marketplace built for those who know. 
                   We connect you with the most sought-after drops, rare collabs, and timeless 
-                  pieces — without the noise, without the queues, without the effort.
+                  pieces — without the noise, without the queues. Style on your own terms.
                 </p>
                 <Link to="/shop" className="btn-primary inline-block mt-8">
                   SHOP NOW →
@@ -108,7 +108,7 @@ export default function AboutPage() {
                 },
                 {
                   num: '03',
-                  title: 'WITHOUT THE EFFORT',
+                  title: 'STYLE ON YOUR OWN TERMS',
                   desc: 'No campouts. No raffles. No bot wars. Just browse, click, and cop. We handle the hustle so you stay nonchalant.',
                 },
               ].map((value, index) => (

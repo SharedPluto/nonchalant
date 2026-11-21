@@ -10,7 +10,7 @@ export default function HomePage() {
     <>
       <MetaTags
         title=""
-        description="NonChalant is a premium streetwear marketplace. Browse curated aesthetics including Minimalist, Skater, Tech, and Hypebeast. Shop top brands like Nike, Adidas, Stone Island, Supreme. Style Without The Effort."
+        description="NonChalant is a premium streetwear marketplace. Browse curated aesthetics including Minimalist, Skater, Tech, and Hypebeast. Shop top brands like Nike, Adidas, Stone Island, Supreme. Style on your own terms."
         url="https://nonchalant.co/"
         type="website"
       />
