@@ -161,7 +161,7 @@ export function mapShopifyProductToProduct(sp: ShopifyProduct): Product {
 }
 
 export function getVariantIdForSize(shopifyProduct: ShopifyProduct, size: string): string | null {
-  const variant = sp.variants.edges.find(v => {
+  const variant = shopifyProduct.variants.edges.find(v => {
     const opt = v.node.selectedOptions.find(o => o.name.toLowerCase() === 'size');
     return opt?.value === size;
   });
