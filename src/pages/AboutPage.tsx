@@ -74,19 +74,19 @@ export default function AboutPage() {
           {/* Floating Shapes */}
           <div className="absolute inset-0 pointer-events-none overflow-hidden">
             <img
-              src="/assets/shape-cube.png"
+              src="/assets/shape-cube-purple.png"
               alt=""
               className="absolute top-[10%] right-[5%] w-[200px] md:w-[300px] opacity-40 animate-float-1"
               style={{ animationDelay: '0s' }}
             />
             <img
-              src="/assets/shape-octahedron.png"
+              src="/assets/shape-octahedron-purple.png"
               alt=""
               className="absolute top-[40%] left-[3%] w-[120px] md:w-[180px] opacity-30 animate-float-2"
               style={{ animationDelay: '2s' }}
             />
             <img
-              src="/assets/shape-sphere.png"
+              src="/assets/shape-sphere-purple.png"
               alt=""
               className="absolute bottom-[15%] right-[20%] w-[160px] md:w-[240px] opacity-35 animate-float-3"
               style={{ animationDelay: '4s' }}
@@ -119,7 +119,7 @@ export default function AboutPage() {
                   }`}
                   style={{ transitionDelay: `${index * 0.2}s` }}
                 >
-                  <span className="font-display text-5xl md:text-7xl text-[var(--nc-lime)] opacity-30">
+                  <span className="font-display text-5xl md:text-7xl text-[var(--nc-purple)] opacity-30">
                     {value.num}
                   </span>
                   <h3 className="font-display text-xl md:text-2xl uppercase tracking-[0.02em] mt-3">

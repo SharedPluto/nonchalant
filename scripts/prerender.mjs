@@ -313,7 +313,7 @@ const verifiedRedirects = legacy.legacyProductRedirects.filter(entry => {
 
 renderPage({
   route: '/',
-  title: 'NonChalant | Streetwear & Sneakers in Singapore — Nike, Jordan, Palace, KITH',
+  title: 'Nonchalant | Style On Your Own Terms',
   metaDescription: 'Shop authenticated streetwear and sneakers in Singapore. Discover Nike, Jordan, Palace, KITH, and other curated brands at NonChalant.',
   lastmod: latestProductUpdate,
   schemas: [{ '@context': 'https://schema.org', '@type': 'WebSite', name: SITE_NAME, url: SITE_URL }],

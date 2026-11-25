@@ -43,7 +43,7 @@ export default function MetaTags({
   breadcrumbs,
 }: MetaTagsProps) {
   const fullTitle = title
-    ? title.includes(SITE_NAME) ? title : `${title} | ${SITE_NAME}`
+    ? title.toLowerCase().includes(SITE_NAME.toLowerCase()) ? title : `${title} | ${SITE_NAME}`
     : 'NonChalant — Style on your own terms';
   const metaDescription = cleanDescription(description);
   const canonical = absoluteUrl(url);

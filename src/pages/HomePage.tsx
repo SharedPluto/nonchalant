@@ -11,7 +11,7 @@ export default function HomePage() {
   return (
     <>
       <MetaTags
-        title="NonChalant | Streetwear & Sneakers in Singapore — Nike, Jordan, Palace, KITH"
+        title="Nonchalant | Style On Your Own Terms"
         description="Shop authenticated streetwear and sneakers in Singapore. Discover Nike, Jordan, Palace, KITH, and other curated brands at NonChalant."
         url="https://nonchalantstore.com/"
         type="website"
