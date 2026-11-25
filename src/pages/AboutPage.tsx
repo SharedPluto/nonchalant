@@ -167,16 +167,7 @@ export default function AboutPage() {
                 </div>
 
                 {/* Social */}
-                <div className="flex items-center gap-4 mt-8">
-                  {['Instagram', 'Twitter', 'TikTok'].map((social) => (
-                    <span
-                      key={social}
-                      className="text-xs uppercase tracking-wider text-[var(--nc-text)] hover:text-[var(--nc-purple)] cursor-pointer transition-colors"
-                    >
-                      {social}
-                    </span>
-                  ))}
-                </div>
+                <p className="text-xs uppercase tracking-wider text-[var(--nc-grey)] mt-8">Coming soon...</p>
               </div>
 
               {/* Contact Form */}

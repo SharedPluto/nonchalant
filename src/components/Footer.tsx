@@ -136,16 +136,7 @@ export default function Footer() {
               <h4 className="text-[11px] uppercase tracking-[0.1em] text-[var(--nc-cream)] mb-4">
                 Connect
               </h4>
-              <div className="flex flex-col gap-3">
-                {['Instagram', 'Twitter / X', 'TikTok'].map((social) => (
-                  <span
-                    key={social}
-                    className="text-sm text-[var(--nc-grey)] hover:text-[var(--nc-lime)] cursor-pointer transition-colors"
-                  >
-                    {social}
-                  </span>
-                ))}
-              </div>
+              <p className="text-sm text-[var(--nc-grey)]">Coming soon...</p>
             </div>
 
             {/* Payment icons */}

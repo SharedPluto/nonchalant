@@ -29,7 +29,7 @@ export default function ReturnsPage() {
           <section className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
             {[
               { icon: Clock, title: '30-Day Window', desc: 'Return any item within 30 days of delivery for a full refund.' },
-              { icon: Package, title: 'Free Returns', desc: 'We provide a prepaid return label for all Singapore orders.' },
+              { icon: Package, title: 'Return Collection', desc: 'We’ll arrange for someone to collect your item and check its condition before bringing it back to us. Your refund will then be processed.' },
               { icon: CheckCircle, title: 'Full Refund', desc: 'Original payment method refunded within 5-7 business days of receiving your return.' },
               { icon: RotateCcw, title: 'Easy Process', desc: 'No questions asked. Just request a return and we will handle the rest.' },
             ].map((item) => (
@@ -70,29 +70,6 @@ export default function ReturnsPage() {
                   <li>Underwear and socks (hygiene reasons)</li>
                 </ul>
               </div>
-            </div>
-          </section>
-
-          {/* How to Return */}
-          <section className="mb-16">
-            <h2 className="font-display text-xl uppercase tracking-[0.02em] mb-6">How to Return</h2>
-            <div className="bg-[var(--nc-offwhite)] p-6 md:p-8">
-              <ol className="space-y-6">
-                {[
-                  'Contact us at support@nonchalantstore.com with your order number and reason for return.',
-                  'We will send you a prepaid return label within 24 hours.',
-                  'Pack the item securely in the original packaging with all tags attached.',
-                  'Drop off the package at any authorized shipping location.',
-                  'Once we receive and inspect your return, your refund will be processed within 5-7 business days.',
-                ].map((step, i) => (
-                  <li key={i} className="flex items-start gap-4">
-                    <span className="flex-shrink-0 w-8 h-8 bg-[var(--nc-purple)] text-white flex items-center justify-center text-sm font-medium">
-                      {i + 1}
-                    </span>
-                    <span className="text-sm leading-relaxed pt-1.5">{step}</span>
-                  </li>
-                ))}
-              </ol>
             </div>
           </section>
 
