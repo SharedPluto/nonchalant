@@ -74,6 +74,17 @@ function inspectHtml(route, status, html) {
     assert(schemas.some(schema => schema['@type'] === 'BreadcrumbList'), `${route}: BreadcrumbList missing`);
     assert(Boolean(product?.sku), `${route}: Product SKU missing`);
   }
+  if (route.startsWith('/blog/')) {
+    const article = schemas.find(schema => schema['@type'] === 'Article');
+    const ogImage = one(html, /<meta\b[^>]*property="og:image"[^>]*content="([^"]*)"/i);
+    assert(Boolean(article), `${route}: Article schema missing`);
+    assert(Boolean(article?.headline), `${route}: Article headline missing`);
+    assert(Boolean(article?.author?.name), `${route}: Article author missing`);
+    assert(!Number.isNaN(Date.parse(article?.datePublished)), `${route}: Article datePublished invalid`);
+    assert(Array.isArray(article?.image) && article.image.length > 0, `${route}: Article image missing`);
+    assert(article?.image?.[0] === ogImage, `${route}: OG image does not match Article hero`);
+    assert(schemas.some(schema => schema['@type'] === 'BreadcrumbList'), `${route}: BreadcrumbList missing`);
+  }
   if (route.startsWith('/brands/') || route.startsWith('/categories/')) {
     assert(schemas.some(schema => schema['@type'] === 'BreadcrumbList'), `${route}: BreadcrumbList missing`);
   }
@@ -104,6 +115,8 @@ const entries = [...sitemap.matchAll(/<url><loc>(.*?)<\/loc><lastmod>(.*?)<\/las
 assert(manifest.productCount === 86 || manifest.productCount > 0, 'Manifest product count is invalid');
 assert(entries.length === manifest.sitemapUrlCount, 'Sitemap count does not match manifest');
 assert(entries.filter(entry => entry.route.startsWith('/product/')).length === manifest.productCount, 'Sitemap product count does not match live catalogue count');
+assert(entries.filter(entry => entry.route.startsWith('/blog/')).length === manifest.articleCount, 'Sitemap article count does not match published Markdown articles');
+assert(!entries.some(entry => entry.route === '/blog/jordan-1-sizing-guide'), 'Unfinished Jordan guide must not be in the sitemap');
 assert(!sitemap.includes('nonchalant.co'), 'Sitemap contains obsolete domain');
 assert(!/<loc>[^<]*\?/.test(sitemap), 'Sitemap contains query-filter URLs');
 assert(!/\/product\/\d+<\/loc>/.test(sitemap), 'Sitemap contains numeric demo product URLs');

@@ -1,112 +1,132 @@
-import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, Calendar, Tag, User } from 'lucide-react';
-import { useShopifyBlogPost } from '@/hooks/useShopifyBlog';
+import { ArrowLeft, Calendar, Clock, User } from 'lucide-react';
+import { Link, useParams } from 'react-router-dom';
+import BlogCard from '@/components/blog/BlogCard';
+import ShopTheStory from '@/components/blog/ShopTheStory';
 import MetaTags from '@/components/seo/MetaTags';
+import { getArticle, getRelatedArticles } from '@/lib/blog';
+import { formatArticleDate } from '@/lib/blog/date';
+import { getShopifyImageUrl, getShopifySrcSet } from '@/lib/shopify/image';
 
 export default function BlogPostPage() {
-  const { handle } = useParams<{ handle: string }>();
-  const { post, loading, error } = useShopifyBlogPost('news', handle || '');
+  const { handle = '' } = useParams<{ handle: string }>();
+  const article = getArticle(handle);
 
-  const formatDate = (dateStr: string) => {
-    return new Date(dateStr).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-    });
-  };
-
-  if (loading) {
+  if (!article) {
     return (
-      <main className="min-h-screen bg-[var(--nc-bg)] pt-[80px] flex items-center justify-center">
-        <div className="animate-pulse text-[var(--nc-grey)] text-sm">Loading post...</div>
-      </main>
-    );
-  }
-
-  if (error || !post) {
-    return (
-      <main className="min-h-screen bg-[var(--nc-bg)] pt-[80px] flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-[var(--nc-grey)] mb-4">{error || 'Post not found'}</p>
+      <>
+        <MetaTags
+          title="Journal Story Not Found"
+          description="The requested NonChalant Journal story could not be found."
+          url={`https://nonchalantstore.com/blog/${handle}`}
+          noindex
+        />
+        <main className="min-h-screen bg-[var(--nc-bg)] pt-[140px] px-6 text-center">
+          <h1 className="font-display text-3xl uppercase mb-4">Story not found</h1>
+          <p className="text-sm text-[var(--nc-grey)] mb-6">This Journal story is unavailable or has not been published.</p>
           <Link to="/blog" className="text-[11px] uppercase tracking-wider text-[var(--nc-purple)] hover:underline">
             Back to Journal
           </Link>
-        </div>
-      </main>
+        </main>
+      </>
     );
   }
+
+  const relatedArticles = getRelatedArticles(article);
 
   return (
     <>
       <MetaTags
-        title={post.title}
-        description={post.excerpt || post.content.slice(0, 160)}
-        url={`https://nonchalantstore.com/blog/${post.handle}`}
-        image={post.image || undefined}
+        title={article.seoTitle}
+        headline={article.title}
+        description={article.seoDescription}
+        url={`https://nonchalantstore.com/blog/${article.slug}`}
+        image={article.heroImage}
         type="article"
-        publishedAt={post.publishedAt}
-        author={post.author}
+        publishedAt={article.date}
+        author={article.author}
+        breadcrumbs={[
+          { name: 'Home', path: '/' },
+          { name: 'Journal', path: '/blog' },
+          { name: article.title, path: `/blog/${article.slug}` },
+        ]}
       />
-      <main className="min-h-screen bg-[var(--nc-bg)] pt-[80px]">
-        {/* Header Image */}
-        {post.image && (
-          <div className="w-full aspect-[21/9] bg-[var(--nc-offwhite)] overflow-hidden">
-            <img
-              src={post.image}
-              alt={post.title}
-              className="w-full h-full object-cover"
-            />
+      <main className="min-h-screen bg-[var(--nc-bg)] pt-[100px]">
+        <article>
+          <div className="max-w-[1200px] mx-auto px-6 md:px-12 pt-8">
+            <Link
+              to="/blog"
+              className="inline-flex items-center gap-2 text-[11px] uppercase tracking-wider text-[var(--nc-grey)] hover:text-[var(--nc-purple)] transition-colors mb-6"
+            >
+              <ArrowLeft size={14} />
+              Back to Journal
+            </Link>
+            <figure className="m-0">
+              <div className="aspect-[3/2] overflow-hidden bg-[var(--nc-offwhite)]">
+                <img
+                  src={getShopifyImageUrl(article.heroImage, 1200)}
+                  srcSet={getShopifySrcSet(article.heroImage, [768, 1200, 1600, 2000])}
+                  sizes="(max-width: 1200px) calc(100vw - 48px), 1104px"
+                  alt={article.heroAlt}
+                  className="w-full h-full object-cover"
+                  width="1600"
+                  height="1067"
+                  loading="eager"
+                  fetchPriority="high"
+                  decoding="async"
+                />
+              </div>
+              {article.heroCaption && (
+                <figcaption className="text-xs text-[var(--nc-grey)] text-center mt-3">
+                  {article.heroCaption}
+                </figcaption>
+              )}
+            </figure>
           </div>
-        )}
 
-        <div className="max-w-[800px] mx-auto px-6 md:px-12 py-10">
-          {/* Back link */}
-          <Link
-            to="/blog"
-            className="inline-flex items-center gap-2 text-[11px] uppercase tracking-wider text-[var(--nc-grey)] hover:text-[var(--nc-purple)] transition-colors mb-8"
-          >
-            <ArrowLeft size={14} />
-            Back to Journal
-          </Link>
-
-          {/* Tags */}
-          {post.tags.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-4">
-              {post.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="flex items-center gap-1 text-[10px] uppercase tracking-wider text-[var(--nc-purple)] bg-[var(--nc-purple)]/5 px-2 py-1"
-                >
-                  <Tag size={10} />
-                  {tag}
-                </span>
-              ))}
+          <header className="max-w-[760px] mx-auto px-6 pt-10 md:pt-14 pb-10">
+            <p className="text-eyebrow mb-4">{article.tags[0] || 'Journal'}</p>
+            <h1 className="font-display text-3xl md:text-5xl uppercase tracking-[0.02em] leading-[1.08]">
+              {article.title}
+            </h1>
+            <p className="text-lg text-[var(--nc-grey)] leading-relaxed mt-5">
+              {article.standfirst}
+            </p>
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 mt-8 pt-6 border-t border-[var(--nc-border)] text-[11px] uppercase tracking-wider text-[var(--nc-grey)]">
+              <span className="inline-flex items-center gap-1.5"><User size={13} />{article.author}</span>
+              <time className="inline-flex items-center gap-1.5" dateTime={article.date}>
+                <Calendar size={13} />{formatArticleDate(article.date)}
+              </time>
+              <span className="inline-flex items-center gap-1.5"><Clock size={13} />{article.readTime}</span>
             </div>
-          )}
+          </header>
 
-          {/* Title */}
-          <h1 className="font-display text-2xl md:text-4xl uppercase tracking-[0.02em] leading-tight mb-6">
-            {post.title}
-          </h1>
-
-          {/* Meta */}
-          <div className="flex items-center gap-4 pb-8 mb-8 border-b border-[var(--nc-border)]">
-            <span className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-[var(--nc-grey)]">
-              <User size={12} />
-              {post.author}
-            </span>
-            <span className="flex items-center gap-1.5 text-[11px] uppercase tracking-wider text-[var(--nc-grey)]">
-              <Calendar size={12} />
-              {formatDate(post.publishedAt)}
-            </span>
+          <div className="max-w-[680px] mx-auto px-6">
+            <div className="prose-blog" dangerouslySetInnerHTML={{ __html: article.contentHtml }} />
+            {article.tags.length > 0 && (
+              <div className="flex flex-wrap gap-x-4 gap-y-2 border-t border-[var(--nc-border)] mt-12 pt-6">
+                {article.tags.map(tag => (
+                  <span key={tag} className="text-[10px] uppercase tracking-[0.12em] text-[var(--nc-purple)]">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
 
-          {/* Content */}
-          <article
-            className="prose-blog"
-            dangerouslySetInnerHTML={{ __html: post.contentHtml }}
-          />
-        </div>
+          <div className="max-w-[1200px] mx-auto px-6 md:px-12 pb-24">
+            <ShopTheStory handles={article.relatedProducts} />
+            {relatedArticles.length > 0 && (
+              <section className="border-t border-[var(--nc-border)] mt-20 pt-12" aria-labelledby="related-stories">
+                <h2 id="related-stories" className="font-display text-2xl md:text-3xl uppercase tracking-[0.02em] mb-8">
+                  Related stories
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                  {relatedArticles.map(related => <BlogCard key={related.slug} article={related} />)}
+                </div>
+              </section>
+            )}
+          </div>
+        </article>
       </main>
     </>
   );

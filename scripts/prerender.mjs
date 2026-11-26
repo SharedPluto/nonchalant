@@ -70,27 +70,6 @@ query PrerenderProducts($after: String) {
   }
 }`;
 
-const BLOG_QUERY = `
-query PrerenderBlogs {
-  blogs(first: 20) {
-    edges {
-      node {
-        handle title
-        articles(first: 50) {
-          edges {
-            node {
-              id title handle excerpt content contentHtml publishedAt tags
-              author { name }
-              image { url altText }
-              seo { title description }
-            }
-          }
-        }
-      }
-    }
-  }
-}`;
-
 async function fetchCatalogue() {
   const products = [];
   let after = null;
@@ -253,6 +232,10 @@ function renderPage({ route, title, metaDescription, body, image = DEFAULT_IMAGE
     const preload = shopifyImage(image, 800);
     tags.push(`<link rel="preload" as="image" href="${escapeHtml(preload)}" imagesrcset="${escapeHtml(shopifySrcSet(image, PRODUCT_IMAGE_WIDTHS))}" imagesizes="${PRODUCT_IMAGE_SIZES}" fetchpriority="high" />`);
   }
+  if (type === 'article' && image.includes('cdn.shopify.com')) {
+    const preload = shopifyImage(image, 1200);
+    tags.push(`<link rel="preload" as="image" href="${escapeHtml(preload)}" imagesrcset="${escapeHtml(shopifySrcSet(image, [768, 1200, 1600, 2000]))}" imagesizes="(max-width: 1200px) calc(100vw - 48px), 1104px" fetchpriority="high" />`);
+  }
   for (const preload of preloads) {
     tags.push(`<link rel="preload" as="image" href="${escapeHtml(preload.href)}"${preload.srcset ? ` imagesrcset="${escapeHtml(preload.srcset)}"` : ''}${preload.sizes ? ` imagesizes="${escapeHtml(preload.sizes)}"` : ''}${preload.media ? ` media="${escapeHtml(preload.media)}"` : ''} fetchpriority="high" />`);
   }
@@ -281,19 +264,29 @@ function renderPage({ route, title, metaDescription, body, image = DEFAULT_IMAGE
 }
 
 console.log('Fetching the live Shopify catalogue for pre-rendering…');
-const [products, blogData] = await Promise.all([
-  fetchCatalogue(),
-  storefront(BLOG_QUERY),
-]);
+const products = await fetchCatalogue();
 if (products.length === 0) throw new Error('The live catalogue is empty; refusing to publish an empty pre-render.');
 
 const liveHandles = new Set(products.map(product => product.handle));
 const latestProductUpdate = products.reduce((latest, product) => product.updatedAt > latest ? product.updatedAt : latest, CONTENT_DATE);
-const articles = blogData.blogs.edges.flatMap(edge => edge.node.articles.edges.map(articleEdge => ({
-  ...articleEdge.node,
-  blogHandle: edge.node.handle,
-  blogTitle: edge.node.title,
-})));
+const blogParserSource = fs.readFileSync(path.join(ROOT, 'src/lib/blog/markdown.ts'), 'utf8');
+const blogParserModule = ts.transpileModule(blogParserSource, {
+  compilerOptions: { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
+}).outputText;
+const { parseArticle } = await import(`data:text/javascript;base64,${Buffer.from(blogParserModule).toString('base64')}`);
+const blogDirectory = path.join(ROOT, 'src/content/blog');
+const articles = fs.readdirSync(blogDirectory)
+  .filter(file => file.endsWith('.md'))
+  .map(file => parseArticle(
+    fs.readFileSync(path.join(blogDirectory, file), 'utf8'),
+    file.replace(/\.md$/, '').replace(/^_/, ''),
+  ))
+  .filter(article => article?.published)
+  .sort((a, b) => Date.parse(b.date) - Date.parse(a.date));
+for (const article of articles) {
+  const missingHandles = article.relatedProducts.filter(handle => !liveHandles.has(handle));
+  if (missingHandles.length) throw new Error(`${article.slug}: missing related products: ${missingHandles.join(', ')}`);
+}
 const newProducts = products.filter(product => product.tags.some(tag => tag.toLowerCase() === 'new')).slice(0, 10);
 const shopProducts = [...products].sort((a, b) =>
   Number(b.tags.some(tag => tag.toLowerCase() === 'new')) - Number(a.tags.some(tag => tag.toLowerCase() === 'new'))
@@ -442,35 +435,38 @@ for (const [slug, intro] of Object.entries(categoryContent)) {
   });
 }
 
-const latestArticleUpdate = articles.reduce((latest, article) => {
-  const date = article.updatedAt || article.publishedAt;
-  return date > latest ? date : latest;
-}, CONTENT_DATE);
+const latestArticleUpdate = articles.reduce((latest, article) => (
+  article.date > latest ? article.date : latest
+), CONTENT_DATE);
 renderPage({
   route: '/blog',
   title: 'NonChalant Journal | Streetwear Stories from Singapore',
-  metaDescription: 'Read the NonChalant Journal for streetwear stories, product context, releases, culture, and news from Singapore.',
+  metaDescription: 'Read the NonChalant Journal for streetwear collaborations, product guides, cultural context, and stories from Singapore.',
   lastmod: latestArticleUpdate,
-  body: `<main class="nc-seo-main"><section class="nc-seo-hero"><h1>Journal</h1><p>Drops, culture, product context, and stories from the world of streetwear. New articles published in Shopify will appear here after the next site build.</p></section>${articles.length ? `<div class="nc-seo-grid">${articles.map(article => `<article class="nc-seo-card"><a href="/blog/${article.handle}">${article.image ? `<img src="${escapeHtml(article.image.url)}" alt="${escapeHtml(article.image.altText || article.title)}" width="800" height="600" loading="lazy">` : ''}<h2>${escapeHtml(article.title)}</h2></a><p>${escapeHtml(article.excerpt || description(article.content))}</p></article>`).join('')}</div>` : '<p>No journal posts have been published yet.</p>'}</main>`,
+  body: `<main class="nc-seo-main"><section class="nc-seo-hero"><h1>Journal</h1><p>Collaborations, cultural context, and practical guides from the world of streetwear.</p></section>${articles.length ? `<div class="nc-seo-grid">${articles.map(article => `<article class="nc-seo-card"><a href="/blog/${article.slug}"><img src="${escapeHtml(shopifyImage(article.heroImage, 768))}" srcset="${escapeHtml(shopifySrcSet(article.heroImage, [480, 768, 960, 1200]))}" sizes="(max-width: 767px) calc(100vw - 48px), 360px" alt="${escapeHtml(article.heroAlt)}" width="1200" height="800" loading="lazy" style="aspect-ratio:3/2;object-fit:cover"><h2>${escapeHtml(article.title)}</h2></a><p>${escapeHtml(article.standfirst)}</p><p>${escapeHtml(article.date.slice(0, 10))} · ${escapeHtml(article.readTime)} · ${escapeHtml(article.tags[0] || 'Journal')}</p></article>`).join('')}</div>` : '<p>New Journal stories are coming soon.</p>'}</main>`,
 });
 
 for (const article of articles) {
-  const route = `/blog/${article.handle}`;
+  const route = `/blog/${article.slug}`;
+  const relatedProducts = article.relatedProducts
+    .map(handle => products.find(product => product.handle === handle))
+    .filter(Boolean);
   renderPage({
     route,
-    title: article.seo?.title ? `${article.seo.title} | NonChalant` : `${article.title} | NonChalant Journal`,
-    metaDescription: article.seo?.description || article.excerpt || article.content,
-    image: article.image?.url || DEFAULT_IMAGE,
+    title: article.seoTitle,
+    metaDescription: article.seoDescription,
+    image: article.heroImage,
     type: 'article',
-    lastmod: article.updatedAt || article.publishedAt,
+    lastmod: article.date,
     schemas: [{
       '@context': 'https://schema.org', '@type': 'Article', headline: article.title,
-      datePublished: article.publishedAt, dateModified: article.updatedAt || article.publishedAt,
-      author: { '@type': 'Person', name: article.author?.name || SITE_NAME },
-      image: article.image ? [article.image.url] : undefined,
+      description: description(article.seoDescription), datePublished: article.date,
+      author: { '@type': 'Person', name: article.author }, image: [article.heroImage],
       mainEntityOfPage: `${SITE_URL}${route}`,
-    }],
-    body: `<main class="nc-seo-main"><article><p><a href="/blog">Back to Journal</a></p><h1>${escapeHtml(article.title)}</h1><p>${escapeHtml(article.author?.name || SITE_NAME)} · ${escapeHtml(article.publishedAt.slice(0, 10))}</p>${article.image ? `<img src="${escapeHtml(article.image.url)}" alt="${escapeHtml(article.image.altText || article.title)}" width="1200" height="675">` : ''}<div>${article.contentHtml}</div></article></main>`,
+    }, breadcrumbSchema([
+      { name: 'Home', path: '/' }, { name: 'Journal', path: '/blog' }, { name: article.title, path: route },
+    ])],
+    body: `<main class="nc-seo-main"><article class="nc-seo-article"><p><a href="/blog">Back to Journal</a></p><figure><img src="${escapeHtml(shopifyImage(article.heroImage, 1200))}" srcset="${escapeHtml(shopifySrcSet(article.heroImage, [768, 1200, 1600, 2000]))}" sizes="(max-width: 1200px) calc(100vw - 48px), 1104px" alt="${escapeHtml(article.heroAlt)}" width="1600" height="1067" loading="eager" fetchpriority="high" style="width:100%;height:auto;aspect-ratio:3/2;object-fit:cover"><figcaption>${escapeHtml(article.heroCaption)}</figcaption></figure><h1>${escapeHtml(article.title)}</h1><p>${escapeHtml(article.standfirst)}</p><p>${escapeHtml(article.author)} · ${escapeHtml(article.date.slice(0, 10))} · ${escapeHtml(article.readTime)}</p><div class="prose-blog" style="max-width:680px;margin:0 auto">${article.contentHtml}</div><section><h2>Shop the story</h2><div class="nc-seo-grid">${relatedProducts.map(product => productCard(product, 99)).join('')}</div></section></article></main>`,
   });
 }
 

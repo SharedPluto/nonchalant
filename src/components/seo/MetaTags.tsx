@@ -11,6 +11,7 @@ import {
 
 interface MetaTagsProps {
   title?: string;
+  headline?: string;
   description?: string;
   image?: string;
   url?: string;
@@ -28,6 +29,7 @@ interface MetaTagsProps {
 
 export default function MetaTags({
   title,
+  headline,
   description = DEFAULT_DESCRIPTION,
   image = DEFAULT_IMAGE,
   url = SITE_URL,
@@ -95,6 +97,21 @@ export default function MetaTags({
           {publishedAt && <meta property="article:published_time" content={publishedAt} />}
           {author && <meta property="article:author" content={author} />}
         </>
+      )}
+
+      {type === 'article' && (
+        <script type="application/ld+json">
+          {JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'Article',
+            headline: headline || title,
+            description: metaDescription,
+            image: [socialImage],
+            datePublished: publishedAt,
+            author: { '@type': 'Person', name: author || SITE_NAME },
+            mainEntityOfPage: canonical,
+          })}
+        </script>
       )}
 
       {type === 'product' && (
