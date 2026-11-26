@@ -6,9 +6,9 @@ author: "NonChalant"
 standfirst: "Unexpected partnerships worth remembering — from rare Supreme racing jackets to a Polo Bear on a skateboard."
 seoTitle: "Top 5 Streetwear Collabs You Didn't Know Happened | NonChalant Journal"
 seoDescription: "Revisit five unexpected streetwear collaborations from Supreme, Palace, A.P.C., Carhartt WIP, The North Face, Brain Dead and FILA."
-heroImage: "https://cdn.shopify.com/s/files/1/0773/1052/5595/files/supreme-x-alpinestars-2007-jacket.jpg?v=1795700702"
-heroAlt: "Supreme x Alpinestars 2007 motorcycle jacket"
-heroCaption: "The Supreme x Alpinestars jacket, 2007. Image: Hypebeast"
+heroImage: "/assets/apc-carhartt-wip-editorial.webp"
+heroAlt: "A.P.C. x Carhartt WIP editorial with monochrome and denim campaign panels"
+heroCaption: "A.P.C. x Carhartt WIP. Image: Carhartt WIP Singapore"
 tags: ["collaborations", "culture", "streetwear"]
 relatedProducts: ["palace-x-evisu-sakura-heavy-wash-t-shirt-navy", "palace-x-nike-england-national-team-t-shirt-pewter-grey", "palace-x-nike-england-national-team-t-shirt-white", "palace-x-nike-england-national-team-t-shirt-light-crimson", "palace-singapore-exclusive-the-lion-city-tri-ferg-t-shirt-white"]
 published: true
