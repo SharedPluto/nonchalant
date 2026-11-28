@@ -553,8 +553,8 @@ export default function ProductDetailPage() {
                   <p className="text-xs mt-2 flex items-center gap-2 text-[var(--nc-grey)]">
                     <span className="inline-block w-[7px] h-[7px] rounded-full bg-[var(--nc-red)] animate-pulse" />
                     {selectedInfo.qty === 1
-                      ? 'Only 1 pair in this size — individually sourced'
-                      : `Only ${selectedInfo.qty} pairs in this size`}
+                      ? 'Only 1 piece in this size — individually sourced'
+                      : `Only ${selectedInfo.qty} pieces in this size`}
                   </p>
                 )}
               </div>
